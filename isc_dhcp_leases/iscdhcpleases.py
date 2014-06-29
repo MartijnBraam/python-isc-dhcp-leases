@@ -1,6 +1,7 @@
 import re
 import datetime
 
+
 class IscDhcpLeases:
     def __init__(self, filename):
         self.filename = filename

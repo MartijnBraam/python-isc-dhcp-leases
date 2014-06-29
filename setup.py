@@ -1,10 +1,10 @@
 from distutils.core import setup
 
 setup(
-    name='python-isc-dhcp-leases',
+    name='isc_dhcp_leases',
     version='0.1',
-    packages=['python-isc-dhcp-leases'],
-    url='https://github.com/MartijnBraam/python-isc-dhcp-leases',
+    packages=['isc_dhcp_leases'],
+    url='https://github.com/MartijnBraam/isc_dhcp_leases',
     license='MIT',
     author='Martijn Braam',
     author_email='martijn@brixit.nl',
