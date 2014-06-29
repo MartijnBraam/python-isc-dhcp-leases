@@ -33,14 +33,23 @@ class Lease(object):
     def __init__(self, ip, data):
         self.data = data
         self.ip = ip
-        self.start = datetime.datetime.strptime(data['starts'][2:], "%Y/%m/%d %H:%M:%S")
-        self.end = datetime.datetime.strptime(data['ends'][2:], "%Y/%m/%d %H:%M:%S")
-        self.ethernet = data['hardware'].replace("ethernet ", "")
+        self.start = datetime.datetime.strptime(data['starts'], "%w %Y/%m/%d %H:%M:%S")
+        if data['ends'] == 'never':
+            self.end = None
+        else:
+            self.end = datetime.datetime.strptime(data['ends'], "%w %Y/%m/%d %H:%M:%S")
+
+        self._hardware = data['hardware'].split(' ')
+        self.ethernet = self._hardware[1]
+        self.hardware = self._hardware[0]
         self.hostname = data.get('client-hostname', '').replace("\"", "")
 
     @property
     def valid(self):
-        return self.start <= datetime.datetime.now() <= self.end
+        if self.end is None:
+            return self.start <= datetime.datetime.now()
+        else:
+            return self.start <= datetime.datetime.now() <= self.end
 
     def __repr__(self):
         return "<Lease {} for {} ({})>".format(self.ip, self.ethernet, self.hostname)

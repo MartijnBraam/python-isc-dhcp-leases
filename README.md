@@ -37,8 +37,10 @@ The Lease object has the following fields
 lease = Lease()
 lease.ip        # The ip address assigned by this lease as string
 lease.ethernet  # The mac address of the lease
+lease.hardware  # The OSI physical layer used to request the lease (usually ethernet)
 lease.start     # The start time of this lease as DateTime object
-lease.end       # The time this lease expires as DateTime object
+lease.end       # The time this lease expires as DateTime object or None if this is an infinite lease
 lease.hostname  # The hostname for this lease if given by the client
 lease.data      # Dict of all the info in the dhcpd.leases file for this lease
+lease.valid     # True if the lease hasn't expired 
 ```
