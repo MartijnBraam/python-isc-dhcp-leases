@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='python-isc-dhcp-leases',
     version='0.1',
-    packages=[''],
+    packages=['python-isc-dhcp-leases'],
     url='https://github.com/MartijnBraam/python-isc-dhcp-leases',
     license='MIT',
     author='Martijn Braam',
