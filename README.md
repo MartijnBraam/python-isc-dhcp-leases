@@ -23,7 +23,7 @@ $ sudo python setup.py install
 ## Usage
 
 ```python
-from python-isc-dhcp-leases.iscdhcpleases import *  # Lease and IscDhcpLeases
+from isc_dhcp_leases.iscdhcpleases import *  # Lease and IscDhcpLeases
 
 leases = IscDhcpLeases('/path/to/dhcpd.leases')
 leases.get()  # Returns the leases as a list of Lease objects
