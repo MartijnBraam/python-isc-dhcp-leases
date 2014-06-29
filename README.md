@@ -8,7 +8,7 @@ Small python module for reading /var/lib/dhcp/dhcpd.leases from isc-dhcp-server
 ### Through pypi
 
 ```bash
-$ sudo pip install python-isc-dhcp-leases
+$ sudo pip install isc_dhcp_leases
 ```
 
 ### Through git
@@ -17,7 +17,7 @@ $ sudo pip install python-isc-dhcp-leases
 $ git clone git@github.com:MartijnBraam/python-isc-dhcp-leases.git
 $ cd python-isc-dhcp-leases
 $ python setup.py build
-$ python setup.py install
+$ sudo python setup.py install
 ```
 
 ## Usage
