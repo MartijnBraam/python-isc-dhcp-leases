@@ -1,0 +1,9 @@
+image: bradrydzewski/python:3.3
+env:
+  - GOPATH=/var/cache/drone
+script:
+  - echo "test"
+notify:
+  email:
+    recipients:
+      - martijn@brixit.nl
