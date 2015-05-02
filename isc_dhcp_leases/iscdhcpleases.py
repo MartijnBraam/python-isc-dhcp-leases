@@ -1,6 +1,14 @@
 import re
 import datetime
 
+def parse_time(s):
+    """
+    Like datetime.datetime.strptime(s, "%w %Y/%m/%d %H:%M:%S") but 5x faster.
+    """
+    _, date_part, time_part = s.split(' ')
+    year, mon, day = date_part.split('/')
+    hour, minute, sec = time_part.split(':')
+    return datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
 
 class IscDhcpLeases(object):
     def __init__(self, filename):
@@ -17,6 +25,9 @@ class IscDhcpLeases(object):
 
             properties = self.regex_properties.findall(block['config'])
             properties = {key: value for (key, value) in properties}
+            if 'hardware' not in properties:
+                # E.g. rows like {'binding': 'state abandoned', ...}
+                continue
             lease = Lease(block['ip'], properties)
             leases.append(lease)
         return leases
@@ -33,11 +44,11 @@ class Lease(object):
     def __init__(self, ip, data):
         self.data = data
         self.ip = ip
-        self.start = datetime.datetime.strptime(data['starts'], "%w %Y/%m/%d %H:%M:%S")
+        self.start = parse_time(data['starts'])
         if data['ends'] == 'never':
             self.end = None
         else:
-            self.end = datetime.datetime.strptime(data['ends'], "%w %Y/%m/%d %H:%M:%S")
+            self.end = parse_time(data['ends'])
 
         self._hardware = data['hardware'].split(' ')
         self.ethernet = self._hardware[1]
