@@ -2,8 +2,10 @@ python-isc-dhcp-leases
 ======================
 
 [![Build Status](https://travis-ci.org/MartijnBraam/python-isc-dhcp-leases.svg?branch=master)](https://travis-ci.org/MartijnBraam/python-isc-dhcp-leases)
+[![PyPI version](https://badge.fury.io/py/isc_dhcp_leases.svg)](http://badge.fury.io/py/isc_dhcp_leases)
+[![Coverage Status](https://coveralls.io/repos/MartijnBraam/python-isc-dhcp-leases/badge.svg)](https://coveralls.io/r/MartijnBraam/python-isc-dhcp-leases)
 
-Small python module for reading /var/lib/dhcp/dhcpd.leases from isc-dhcp-server
+Small python module for reading /var/lib/dhcp/dhcpd.leases from isc-dhcp-server. This module works in Python 2.7 and 3.x
 
 ## Installation
 
