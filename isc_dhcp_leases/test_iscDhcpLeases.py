@@ -9,7 +9,7 @@ __author__ = 'Martijn Braam <martijn@brixit.nl>'
 class TestIscDhcpLeases(TestCase):
     @freeze_time("2015-07-6 8:15:0")
     def test_get(self):
-        leases = IscDhcpLeases("test_files/debian7.leases")
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/debian7.leases")
         result = leases.get()
         self.assertEqual(len(result), 5)
         self.assertEqual(result[0].ip, "10.0.0.10")
@@ -20,7 +20,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].start, datetime(2013, 12, 10, 12, 57, 4))
         self.assertEqual(result[0].end, datetime(2013, 12, 10, 13, 7, 4))
 
-        leases = IscDhcpLeases("test_files/pfsense.leases")
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/pfsense.leases")
         result = leases.get()
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].ip, "10.0.10.72")
@@ -33,11 +33,11 @@ class TestIscDhcpLeases(TestCase):
 
     @freeze_time("2015-07-6 8:15:0")
     def test_get_current(self):
-        leases = IscDhcpLeases("test_files/debian7.leases")
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/debian7.leases")
         result = leases.get_current()
         self.assertEqual(len(result), 0)
 
-        leases = IscDhcpLeases("test_files/pfsense.leases")
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/pfsense.leases")
         result = leases.get_current()
         self.assertEqual(len(result), 2)
 

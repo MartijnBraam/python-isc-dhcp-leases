@@ -9,4 +9,4 @@ python:
 install:
   - "pip install -r requirements.txt"
 # command to run tests
-script: cd isc_dhcp_leases; python -m unittest discover
+script: python -m unittest discover
