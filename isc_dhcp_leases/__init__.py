@@ -1,1 +1,1 @@
-__author__ = 'martijn'
+__author__ = 'Martijn Braam <martijn@brixit.nl>'
