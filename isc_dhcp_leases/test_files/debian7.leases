@@ -1,0 +1,48 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.2.2
+
+lease 10.0.0.10 {
+  starts 2 2013/12/10 12:57:04;
+  ends 2 2013/12/10 13:07:04;
+  tstp 2 2013/12/10 13:07:04;
+  cltt 2 2013/12/10 12:57:04;
+  binding state free;
+  hardware ethernet 60:a4:4c:b5:6a:dd;
+  uid "\377\000\000\000\002\000\001\000\001\0321\301\300\000#\213\360F\350";
+}
+lease 10.0.0.15 {
+  starts 4 2014/01/23 13:40:45;
+  ends 4 2014/01/23 13:50:45;
+  tstp 4 2014/01/23 13:50:45;
+  cltt 4 2014/01/23 13:40:45;
+  binding state free;
+  hardware ethernet bc:f5:ac:fe:d1:7d;
+  uid "\001\274\365\254\376\321}";
+}
+lease 10.0.0.18 {
+  starts 2 2014/10/07 13:13:14;
+  ends 2 2014/10/07 15:13:14;
+  tstp 2 2014/10/07 15:13:14;
+  cltt 2 2014/10/07 13:13:14;
+  binding state free;
+  hardware ethernet e0:c9:7a:89:c9:2e;
+  uid "\001\340\311z\211\311.";
+}
+lease 10.0.0.21 {
+  starts 1 2015/01/12 10:29:26;
+  ends 1 2015/01/12 10:39:26;
+  tstp 1 2015/01/12 10:39:26;
+  cltt 1 2015/01/12 10:29:26;
+  binding state free;
+  hardware ethernet 9c:2a:70:7c:43:6a;
+  uid "\001\234*p|Cj";
+}
+lease 10.0.0.16 {
+  starts 3 2015/03/18 09:21:44;
+  ends 3 2015/03/18 09:31:44;
+  tstp 3 2015/03/18 09:31:44;
+  cltt 3 2015/03/18 09:21:44;
+  binding state free;
+  hardware ethernet 6c:71:d9:21:55:71;
+  uid "\001lq\331!Uq";
+}
