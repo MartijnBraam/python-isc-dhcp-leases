@@ -1,6 +1,8 @@
 python-isc-dhcp-leases
 ======================
 
+[![Build Status](https://travis-ci.org/MartijnBraam/python-isc-dhcp-leases.svg?branch=master)](https://travis-ci.org/MartijnBraam/python-isc-dhcp-leases)
+
 Small python module for reading /var/lib/dhcp/dhcpd.leases from isc-dhcp-server
 
 ## Installation
