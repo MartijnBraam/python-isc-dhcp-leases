@@ -49,3 +49,13 @@ lease.hostname  # The hostname for this lease if given by the client
 lease.data      # Dict of all the info in the dhcpd.leases file for this lease
 lease.valid     # True if the lease hasn't expired 
 ```
+
+## Unit tests
+
+The unit tests can be run with setup.py
+
+```bash
+$ python3 setup.py test
+# With coverage report:
+$ coverage run setup.py test
+```
