@@ -36,7 +36,8 @@ class IscDhcpLeases(object):
         all_leases = self.get()
         leases = {}
         for lease in all_leases:
-            leases[lease.ethernet] = lease
+            if lease.valid:
+                leases[lease.ethernet] = lease
         return leases
 
 
