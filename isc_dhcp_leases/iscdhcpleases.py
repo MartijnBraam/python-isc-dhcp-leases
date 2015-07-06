@@ -1,6 +1,7 @@
 import re
 import datetime
 
+
 def parse_time(s):
     """
     Like datetime.datetime.strptime(s, "%w %Y/%m/%d %H:%M:%S") but 5x faster.
@@ -9,6 +10,7 @@ def parse_time(s):
     year, mon, day = date_part.split('/')
     hour, minute, sec = time_part.split(':')
     return datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
+
 
 class IscDhcpLeases(object):
     def __init__(self, filename):
@@ -36,7 +38,7 @@ class IscDhcpLeases(object):
         all_leases = self.get()
         leases = {}
         for lease in all_leases:
-            if lease.valid:
+            if lease.valid and lease.active:
                 leases[lease.ethernet] = lease
         return leases
 
@@ -55,6 +57,7 @@ class Lease(object):
         self.ethernet = self._hardware[1]
         self.hardware = self._hardware[0]
         self.hostname = data.get('client-hostname', '').replace("\"", "")
+        self.binding_state = " ".join(data['binding'].split(' ')[1:])
 
     @property
     def valid(self):
@@ -63,8 +66,15 @@ class Lease(object):
         else:
             return self.start <= datetime.datetime.now() <= self.end
 
+    @property
+    def active(self):
+        return self.binding_state == 'active'
+
     def __repr__(self):
         return "<Lease {} for {} ({})>".format(self.ip, self.ethernet, self.hostname)
+
+    def __eq__(self, other):
+        return self.ip == other.ip and self.ethernet == other.ethernet and self.start == other.start
 
 
 if __name__ == "__main__":

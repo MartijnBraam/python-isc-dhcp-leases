@@ -29,6 +29,8 @@ class TestLease(TestCase):
         self.assertEqual(lease.start, datetime(2013, 12, 10, 12, 57, 4))
         self.assertIsNone(lease.end)
         self.assertTrue(lease.valid)
+        self.assertFalse(lease.active)
+        self.assertEqual(lease.binding_state, 'free')
 
     def test_repr(self):
         lease = Lease("192.168.0.1", self.lease_data)
@@ -48,3 +50,16 @@ class TestLease(TestCase):
         lease.start = datetime(2015, 7, 6, 12, 57, 4)
         lease.end = datetime(2015, 7, 6, 13, 57, 4)
         self.assertFalse(lease.valid)  # Lease is in the future
+
+    def test_eq(self):
+        lease_a = Lease("192.168.0.1", self.lease_data)
+        lease_b = Lease("192.168.0.1", self.lease_data)
+
+        self.assertEqual(lease_a, lease_b)
+
+        lease_b.ip = "172.16.42.1"
+        self.assertNotEqual(lease_a, lease_b)
+
+        lease_b.ip = "192.168.0.1"
+        lease_b.ethernet = "60:a4:4c:b5:6a:de"
+        self.assertNotEqual(lease_a, lease_b)
