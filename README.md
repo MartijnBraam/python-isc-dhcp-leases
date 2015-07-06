@@ -23,7 +23,7 @@ $ sudo python setup.py install
 ## Usage
 
 ```python
-from isc_dhcp_leases.iscdhcpleases import *  # Lease and IscDhcpLeases
+from isc_dhcp_leases.iscdhcpleases import Lease, IscDhcpLeases
 
 leases = IscDhcpLeases('/path/to/dhcpd.leases')
 leases.get()  # Returns the leases as a list of Lease objects
@@ -33,6 +33,7 @@ leases.get_current()  # Returns only the currently valid dhcp leases as dict
 ```
 
 The Lease object has the following fields
+
 ```python
 lease = Lease()
 lease.ip        # The ip address assigned by this lease as string
