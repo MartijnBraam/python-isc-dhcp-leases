@@ -13,6 +13,10 @@ def parse_time(s):
 
 
 class IscDhcpLeases(object):
+    """
+    Class to parse isc-dhcp-server lease files into lease objects
+    """
+
     def __init__(self, filename):
         self.filename = filename
         self.last_leases = {}
@@ -21,6 +25,9 @@ class IscDhcpLeases(object):
         self.regex_properties = re.compile(r"\s+(?P<key>\S+) (?P<value>[\s\S]+?);")
 
     def get(self):
+        """
+        Parse the lease file and return a list of Lease instances.
+        """
         leases = []
         for match in self.regex_leaseblock.finditer(open(self.filename).read()):
             block = match.groupdict()
@@ -35,6 +42,10 @@ class IscDhcpLeases(object):
         return leases
 
     def get_current(self):
+        """
+        Parse the lease file and return a dict of active and valid Lease instances.
+        The key for this dict is the ethernet address of the lease.
+        """
         all_leases = self.get()
         leases = {}
         for lease in all_leases:
@@ -44,6 +55,20 @@ class IscDhcpLeases(object):
 
 
 class Lease(object):
+    """
+    Representation of a dhcp lease
+
+    Attributes:
+        ip              The ip address assigned by this lease as string
+        hardware        The OSI physical layer used to request the lease (usually ethernet)
+        ethernet        The ethernet address of this lease (MAC address)
+        start           The start time of this lease as DateTime object
+        end             The time this lease expires as DateTime object or None if this is an infinite lease
+        hostname        The hostname for this lease if given by the client
+        binding_state   The binding state as string ('active', 'free', 'abandoned', 'backup')
+        data            Dict of all the info in the dhcpd.leases file for this lease
+    """
+
     def __init__(self, ip, data):
         self.data = data
         self.ip = ip
@@ -61,6 +86,10 @@ class Lease(object):
 
     @property
     def valid(self):
+        """
+        Checks if the lease is currently valid (not expired and not in the future)
+        :return: bool: True if lease is valid
+        """
         if self.end is None:
             return self.start <= datetime.datetime.now()
         else:
@@ -68,6 +97,10 @@ class Lease(object):
 
     @property
     def active(self):
+        """
+        Shorthand to check if the binding_state is active
+        :return: bool: True if lease is active
+        """
         return self.binding_state == 'active'
 
     def __repr__(self):
