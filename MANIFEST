@@ -4,3 +4,4 @@ isc_dhcp_leases/__init__.py
 isc_dhcp_leases/iscdhcpleases.py
 isc_dhcp_leases/test_iscDhcpLeases.py
 isc_dhcp_leases/test_lease.py
+isc_dhcp_leases/test_lease6.py
