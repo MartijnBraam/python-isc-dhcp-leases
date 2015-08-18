@@ -1,0 +1,14 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.2.4
+
+server-duid "\000\001\000\001\035f\037-N\316\347\374,\226";
+
+ia-na "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000" {
+  cltt 2 2015/08/18 16:55:37;
+  iaaddr 2001:610:600:891d::60 {
+    binding state active;
+    preferred-life 375;
+    max-life 600;
+    ends 2 2015/08/18 17:05:37;
+  }
+}
