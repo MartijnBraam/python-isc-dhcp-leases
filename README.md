@@ -7,6 +7,8 @@ python-isc-dhcp-leases
 
 Small python module for reading /var/lib/dhcp/dhcpd.leases from isc-dhcp-server. This module works in Python 2.7 and 3.x
 
+This module also supports reading lease files from the isc dhcp daemon running in IPv6 mode. 
+
 ## Installation
 
 ### Through pypi
@@ -36,7 +38,7 @@ leases.get_current()  # Returns only the currently valid dhcp leases as dict
                       # Value is a Lease object
 ```
 
-The Lease object has the following fields
+The Lease object has the following fields (only for IPv4 leases)
 
 ```python
 lease = Lease()
@@ -50,6 +52,24 @@ lease.binding_state  # The binding state as string ('active', 'free', 'abandoned
 lease.data           # Dict of all the info in the dhcpd.leases file for this lease
 lease.valid          # True if the lease hasn't expired and is not in the future
 lease.active         # True if the binding state is active
+```
+
+The Lease6 object has the following fields (only for IPv6)
+
+```python
+lease = Lease6()
+lease.ip                 # The ip address assigned by this lease as string
+lease.type               # If this is a temporary or permanent address. I's one of the following:
+                         # Lease6.TEMPORARY: Temporary lease
+                         # Lease6.NON_TEMPORARY: Non-temporary lease
+                         # Lease6.PREFIX_DELEGATION: Delegated prefix lease
+lease.host_identifier    # The unique host identifier (replaces mac addresses in IPv6)
+lease.last_communication # The last communication time with the host
+lease.end                # The time this lease expires as DateTime object or None if this is an infinite lease
+lease.binding_state      # The binding state as string ('active', 'free', 'abandoned', 'backup')
+lease.preferred_life     # The preferred lifetime in seconds
+lease.max_life           # The valid lifetime for this address in seconds
+lease.data               # Dict of all the info in the dhcpd6.leases file for this lease
 ```
 
 ## Unit tests
