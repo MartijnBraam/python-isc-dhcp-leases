@@ -1,5 +1,6 @@
 import re
 import datetime
+import codecs
 
 
 def parse_time(s):
@@ -22,23 +23,44 @@ class IscDhcpLeases(object):
         self.last_leases = {}
 
         self.regex_leaseblock = re.compile(r"lease (?P<ip>\d+\.\d+\.\d+\.\d+) {(?P<config>[\s\S]+?)\n}")
+        self.regex_leaseblock6 = re.compile(r"ia-(?P<type>ta|na) \"(?P<id>[^\"]+)\" {(?P<config>[\s\S]+?)\n}")
         self.regex_properties = re.compile(r"\s+(?P<key>\S+) (?P<value>[\s\S]+?);")
+        self.regex_iaaddr = re.compile(r"iaaddr (?P<ip>[0-9a-f:]+) {(?P<config>[\s\S]+?)\n\s+}")
 
     def get(self):
         """
         Parse the lease file and return a list of Lease instances.
         """
         leases = []
-        for match in self.regex_leaseblock.finditer(open(self.filename).read()):
-            block = match.groupdict()
+        with open(self.filename) as lease_file:
+            lease_data = lease_file.read()
+            for match in self.regex_leaseblock.finditer(lease_data):
+                block = match.groupdict()
 
-            properties = self.regex_properties.findall(block['config'])
-            properties = {key: value for (key, value) in properties}
-            if 'hardware' not in properties:
-                # E.g. rows like {'binding': 'state abandoned', ...}
-                continue
-            lease = Lease(block['ip'], properties)
-            leases.append(lease)
+                properties = self.regex_properties.findall(block['config'])
+                properties = {key: value for (key, value) in properties}
+                if 'hardware' not in properties:
+                    # E.g. rows like {'binding': 'state abandoned', ...}
+                    continue
+                lease = Lease(block['ip'], properties)
+                leases.append(lease)
+
+            for match in self.regex_leaseblock6.finditer(lease_data):
+                block = match.groupdict()
+                properties = self.regex_properties.findall(block['config'])
+                properties = {key: value for (key, value) in properties}
+                host_identifier = block['id']
+                block_type = block['type']
+                last_client_communication = parse_time(properties['cltt'])
+
+                for address_block in self.regex_iaaddr.finditer(block['config']):
+                    block = address_block.groupdict()
+                    properties = self.regex_properties.findall(block['config'])
+                    properties = {key: value for (key, value) in properties}
+
+                    lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type)
+                    leases.append(lease)
+
         return leases
 
     def get_current(self):
@@ -56,10 +78,10 @@ class IscDhcpLeases(object):
 
 class Lease(object):
     """
-    Representation of a dhcp lease
+    Representation of a IPv4 dhcp lease
 
     Attributes:
-        ip              The ip address assigned by this lease as string
+        ip              The IPv4 address assigned by this lease as string
         hardware        The OSI physical layer used to request the lease (usually ethernet)
         ethernet        The ethernet address of this lease (MAC address)
         start           The start time of this lease as DateTime object
@@ -108,6 +130,66 @@ class Lease(object):
 
     def __eq__(self, other):
         return self.ip == other.ip and self.ethernet == other.ethernet and self.start == other.start
+
+
+class Lease6(object):
+    """
+    Representation of a IPv6 dhcp lease
+
+    Attributes:
+        ip                 The IPv6 address assigned by this lease as string
+        type               If this is a temporary or permanent address
+        host_identifier    The unique host identifier (replaces mac addresses in IPv6)
+        last_communication The last communication time with the host
+        end                The time this lease expires as DateTime object or None if this is an infinite lease
+        binding_state      The binding state as string ('active', 'free', 'abandoned', 'backup')
+        preferred_life     The preferred lifetime in seconds
+        max_life           The valid lifetime for this address in seconds
+        data               Dict of all the info in the dhcpd.leases file for this lease
+    """
+
+    (TEMPORARY, NON_TEMPORARY, PREFIX_DELEGATION) = ('ta', 'na', 'pd')
+
+    def __init__(self, ip, data, cltt, host_identifier, address_type):
+        self.data = data
+        self.ip = ip
+        self.type = address_type
+        self.last_communication = cltt
+
+        self.host_identifier = codecs.decode(host_identifier, "unicode_escape")
+
+        if data['ends'] == 'never':
+            self.end = None
+        else:
+            self.end = parse_time(data['ends'])
+        self.preferred_life = int(data['preferred-life'])
+        self.max_life = int(data['max-life'])
+        self.binding_state = " ".join(data['binding'].split(' ')[1:])
+
+    @property
+    def valid(self):
+        """
+        Checks if the lease is currently valid (not expired)
+        :return: bool: True if lease is valid
+        """
+        if self.end is None:
+            return True
+        else:
+            return datetime.datetime.now() <= self.end
+
+    @property
+    def active(self):
+        """
+        Shorthand to check if the binding_state is active
+        :return: bool: True if lease is active
+        """
+        return self.binding_state == 'active'
+
+    def __repr__(self):
+        return "<Lease6 {}>".format(self.ip)
+
+    def __eq__(self, other):
+        return self.ip == other.ip and self.host_identifier == other.host_identifier
 
 
 if __name__ == "__main__":

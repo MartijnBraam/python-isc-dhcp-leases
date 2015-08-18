@@ -1,5 +1,5 @@
 from unittest import TestCase
-from isc_dhcp_leases.iscdhcpleases import IscDhcpLeases, Lease
+from isc_dhcp_leases.iscdhcpleases import IscDhcpLeases, Lease, Lease6
 from freezegun import freeze_time
 from datetime import datetime
 
@@ -34,6 +34,19 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].hostname, "Satellite-C700")
         self.assertEqual(result[0].start, datetime(2015, 7, 6, 7, 50, 42))
         self.assertEqual(result[0].end, datetime(2015, 7, 6, 8, 20, 42))
+
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
+        result = leases.get()
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].ip, "2001:610:600:891d::60")
+        self.assertEqual(result[0].host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
+        self.assertEqual(result[0].valid, True)
+        self.assertEqual(result[0].active, True)
+        self.assertEqual(result[0].binding_state, 'active')
+        self.assertEqual(result[0].preferred_life, 375)
+        self.assertEqual(result[0].max_life, 600)
+        self.assertEqual(result[0].last_communication, datetime(2015, 8, 18, 16, 55, 37))
+        self.assertEqual(result[0].type, Lease6.NON_TEMPORARY)
 
     @freeze_time("2015-07-6 8:15:0")
     def test_get_current(self):
