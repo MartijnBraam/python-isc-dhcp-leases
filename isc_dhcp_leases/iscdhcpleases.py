@@ -72,7 +72,10 @@ class IscDhcpLeases(object):
         leases = {}
         for lease in all_leases:
             if lease.valid and lease.active:
-                leases[lease.ethernet] = lease
+                if type(lease) is Lease:
+                    leases[lease.ethernet] = lease
+                elif type(lease) is Lease6:
+                    leases['%s-%s' % (lease.type, lease.host_identifier)] = lease
         return leases
 
 

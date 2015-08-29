@@ -72,3 +72,20 @@ class TestIscDhcpLeases(TestCase):
         self.assertTrue("64:5a:04:6a:07:a2" in result)
         self.assertTrue(result["14:da:e9:04:c8:a3"].valid)
         self.assertTrue(result["64:5a:04:6a:07:a2"].valid)
+
+
+    def test_get_current_ipv6(self):
+        with freeze_time("2015-08-18 17:0:0"):
+            leases =  IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
+            result = leases.get_current()
+            self.assertEqual(len(result), 2)
+            self.assertTrue("pd-4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000" in result)
+            self.assertTrue("na-4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000" in result)
+
+            for key, r in result.items():
+                self.assertTrue(r.valid, key)
+
+        with freeze_time("2015-08-18 18:0:0"):
+            leases =  IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
+            result = leases.get_current()
+            self.assertEqual(len(result), 0)
