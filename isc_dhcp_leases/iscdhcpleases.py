@@ -23,9 +23,9 @@ class IscDhcpLeases(object):
         self.last_leases = {}
 
         self.regex_leaseblock = re.compile(r"lease (?P<ip>\d+\.\d+\.\d+\.\d+) {(?P<config>[\s\S]+?)\n}")
-        self.regex_leaseblock6 = re.compile(r"ia-(?P<type>ta|na) \"(?P<id>[^\"]+)\" {(?P<config>[\s\S]+?)\n}")
+        self.regex_leaseblock6 = re.compile(r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"]+)\" {(?P<config>[\s\S]+?)\n}")
         self.regex_properties = re.compile(r"\s+(?P<key>\S+) (?P<value>[\s\S]+?);")
-        self.regex_iaaddr = re.compile(r"iaaddr (?P<ip>[0-9a-f:]+) {(?P<config>[\s\S]+?)\n\s+}")
+        self.regex_iaaddr = re.compile(r"iaaddr (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
     def get(self):
         """
