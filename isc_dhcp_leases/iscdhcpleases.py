@@ -116,9 +116,9 @@ class Lease(object):
         :return: bool: True if lease is valid
         """
         if self.end is None:
-            return self.start <= datetime.datetime.now()
+            return self.start <= datetime.datetime.utcnow()
         else:
-            return self.start <= datetime.datetime.now() <= self.end
+            return self.start <= datetime.datetime.utcnow() <= self.end
 
     @property
     def active(self):
@@ -178,7 +178,7 @@ class Lease6(object):
         if self.end is None:
             return True
         else:
-            return datetime.datetime.now() <= self.end
+            return datetime.datetime.utcnow() <= self.end
 
     @property
     def active(self):
