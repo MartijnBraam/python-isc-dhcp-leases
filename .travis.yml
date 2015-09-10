@@ -11,5 +11,5 @@ install:
   - pip install coverage
   - pip install coveralls
 # command to run tests
-script: coverage run --source isc_dhcp_leases setup.py test && python3 setup.py test
+script: travis_run.sh
 after_success: coveralls
