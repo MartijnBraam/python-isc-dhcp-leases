@@ -1,6 +1,7 @@
 import re
 import datetime
 import codecs
+import struct
 
 
 def parse_time(s):
@@ -75,7 +76,7 @@ class IscDhcpLeases(object):
                 if type(lease) is Lease:
                     leases[lease.ethernet] = lease
                 elif type(lease) is Lease6:
-                    leases['%s-%s' % (lease.type, lease.host_identifier)] = lease
+                    leases['%s-%s' % (lease.type, lease.host_identifier_string)] = lease
         return leases
 
 
@@ -161,10 +162,9 @@ class Lease6(object):
         self.type = address_type
         self.last_communication = cltt
 
-        self.host_identifier = codecs.decode(host_identifier, "unicode_escape")
-        host_identifier_bytes = self.host_identifier.encode('latin-1')
-        self.iaid = int(codecs.encode(host_identifier_bytes[0:4][::-1], 'hex'), 16)
-        self.duid = codecs.encode(host_identifier_bytes[4:], 'hex')
+        self.host_identifier = self._iaid_duid_to_bytes(host_identifier)
+        self.iaid = struct.unpack('>i', self.host_identifier[0:4])[0]
+        self.duid = self.host_identifier[4:]
 
         if data['ends'] == 'never':
             self.end = None
@@ -173,6 +173,10 @@ class Lease6(object):
         self.preferred_life = int(data['preferred-life'])
         self.max_life = int(data['max-life'])
         self.binding_state = " ".join(data['binding'].split(' ')[1:])
+
+    @property
+    def host_identifier_string(self):
+        return codecs.encode(self.host_identifier, 'hex').decode('ascii')
 
     @property
     def valid(self):
@@ -198,6 +202,16 @@ class Lease6(object):
 
     def __eq__(self, other):
         return self.ip == other.ip and self.host_identifier == other.host_identifier
+
+    def _iaid_duid_to_bytes(self, input_string):
+        def octal_to_decimal(match):
+            first_group = match.group(1)
+            return "\\" + str(int(first_group, 8))
+
+        regex = r'\\(\d\d\d)'
+        result = re.sub(regex, octal_to_decimal, input_string)
+        result = codecs.decode(result, 'unicode_escape').encode('latin-1')
+        return result
 
 
 if __name__ == "__main__":
