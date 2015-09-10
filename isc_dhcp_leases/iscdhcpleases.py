@@ -143,6 +143,8 @@ class Lease6(object):
         ip                 The IPv6 address assigned by this lease as string
         type               If this is a temporary or permanent address
         host_identifier    The unique host identifier (replaces mac addresses in IPv6)
+        duid               The DHCP Unique Identifier (DUID) of the host
+        iaid               The Interface Association Identifier (IAID) of the host
         last_communication The last communication time with the host
         end                The time this lease expires as DateTime object or None if this is an infinite lease
         binding_state      The binding state as string ('active', 'free', 'abandoned', 'backup')
@@ -160,6 +162,9 @@ class Lease6(object):
         self.last_communication = cltt
 
         self.host_identifier = codecs.decode(host_identifier, "unicode_escape")
+        host_identifier_bytes = self.host_identifier.encode('latin-1')
+        self.iaid = int(codecs.encode(host_identifier_bytes[0:4][::-1], 'hex'), 16)
+        self.duid = codecs.encode(host_identifier_bytes[4:], 'hex')
 
         if data['ends'] == 'never':
             self.end = None

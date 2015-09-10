@@ -23,6 +23,8 @@ class TestLease6(TestCase):
 
         self.assertEqual(lease.host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
         self.assertEqual(lease.valid, True)
+        self.assertEqual(lease.iaid, 3933627444)
+        self.assertEqual(lease.duid, b'000100011d661fe20a0027000000')
         self.assertEqual(lease.active, True)
         self.assertEqual(lease.binding_state, 'active')
         self.assertEqual(lease.preferred_life, 375)

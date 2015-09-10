@@ -40,6 +40,8 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].ip, "2001:610:600:891d::60")
         self.assertEqual(result[0].host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
+        self.assertEqual(result[0].iaid, 3933627444)
+        self.assertEqual(result[0].duid, b'000100011d661fe20a0027000000')
         self.assertEqual(result[0].valid, True)
         self.assertEqual(result[0].active, True)
         self.assertEqual(result[0].binding_state, 'active')
@@ -50,6 +52,8 @@ class TestIscDhcpLeases(TestCase):
 
         self.assertEqual(result[1].ip, "2001:610:500:fff::/64")
         self.assertEqual(result[1].host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
+        self.assertEqual(result[1].iaid, 3933627444)
+        self.assertEqual(result[1].duid, b'000100011d661fe20a0027000000')
         self.assertEqual(result[1].valid, True)
         self.assertEqual(result[1].active, True)
         self.assertEqual(result[1].binding_state, 'active')
