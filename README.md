@@ -63,8 +63,9 @@ lease.type               # If this is a temporary or permanent address. I's one 
                          # Lease6.TEMPORARY: Temporary lease
                          # Lease6.NON_TEMPORARY: Non-temporary lease
                          # Lease6.PREFIX_DELEGATION: Delegated prefix lease
-lease.host_identifier    # The unique host identifier (replaces mac addresses in IPv6)
-lease.duid               # The DHCP Unique Identifier (DUID) of the host
+lease.host_identifier    # The unique host identifier (replaces mac addresses in IPv6) as bytes
+lease.host_identifier_string # The host_identifier property formatted as an hexadecimal string
+lease.duid               # The DHCP Unique Identifier (DUID) of the host as bytes
 lease.iaid               # The Interface Association Identifier (IAID) of the host
 lease.last_communication # The last communication time with the host
 lease.end                # The time this lease expires as DateTime object or None if this is an infinite lease
