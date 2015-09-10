@@ -39,7 +39,7 @@ class TestIscDhcpLeases(TestCase):
         result = leases.get()
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].ip, "2001:610:600:891d::60")
-        self.assertEqual(result[0].host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
+        self.assertEqual(result[0].host_identifier, u"4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
         self.assertEqual(result[0].iaid, 3933627444)
         self.assertEqual(result[0].duid, b'000100011d661fe20a0027000000')
         self.assertEqual(result[0].valid, True)
@@ -51,7 +51,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].type, Lease6.NON_TEMPORARY)
 
         self.assertEqual(result[1].ip, "2001:610:500:fff::/64")
-        self.assertEqual(result[1].host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
+        self.assertEqual(result[1].host_identifier, u"4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
         self.assertEqual(result[1].iaid, 3933627444)
         self.assertEqual(result[1].duid, b'000100011d661fe20a0027000000')
         self.assertEqual(result[1].valid, True)
@@ -83,8 +83,8 @@ class TestIscDhcpLeases(TestCase):
             leases =  IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
             result = leases.get_current()
             self.assertEqual(len(result), 2)
-            self.assertTrue("pd-4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000" in result)
-            self.assertTrue("na-4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000" in result)
+            self.assertIn(u"pd-4dv\xea\x00\x01\x00\x01\x1df\x1f\xe2\n\x00'\x00\x00\x00", result)
+            self.assertIn(u"na-4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000", result)
 
             for key, r in result.items():
                 self.assertTrue(r.valid, key)
