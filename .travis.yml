@@ -14,5 +14,5 @@ install:
 # running the test twice isn't very efficient but it does work
 script:
   - coverage run --source isc_dhcp_leases setup.py test
-  - python3 setup.py test
+  - python setup.py test
 after_success: coveralls

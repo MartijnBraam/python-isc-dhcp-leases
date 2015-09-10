@@ -21,7 +21,9 @@ def discover_and_run_tests():
     test_suite = test_loader.discover(setup_dir)
 
     # run the test suite
-    test_runner.run(test_suite)
+    result = test_runner.run(test_suite)
+    if len(result.failures) + len(result.errors) > 0:
+        exit(1)
 
 
 class DiscoverTest(Command):
