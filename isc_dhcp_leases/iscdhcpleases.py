@@ -1,6 +1,8 @@
 import re
 import datetime
 import codecs
+import struct
+import binascii
 
 
 def parse_time(s):
@@ -75,7 +77,7 @@ class IscDhcpLeases(object):
                 if type(lease) is Lease:
                     leases[lease.ethernet] = lease
                 elif type(lease) is Lease6:
-                    leases['%s-%s' % (lease.type, lease.host_identifier)] = lease
+                    leases['%s-%s' % (lease.type, lease.host_identifier_string)] = lease
         return leases
 
 
@@ -143,6 +145,8 @@ class Lease6(object):
         ip                 The IPv6 address assigned by this lease as string
         type               If this is a temporary or permanent address
         host_identifier    The unique host identifier (replaces mac addresses in IPv6)
+        duid               The DHCP Unique Identifier (DUID) of the host
+        iaid               The Interface Association Identifier (IAID) of the host
         last_communication The last communication time with the host
         end                The time this lease expires as DateTime object or None if this is an infinite lease
         binding_state      The binding state as string ('active', 'free', 'abandoned', 'backup')
@@ -159,7 +163,9 @@ class Lease6(object):
         self.type = address_type
         self.last_communication = cltt
 
-        self.host_identifier = codecs.decode(host_identifier, "unicode_escape")
+        self.host_identifier = self._iaid_duid_to_bytes(host_identifier)
+        self.iaid = struct.unpack('>i', self.host_identifier[0:4])[0]
+        self.duid = self.host_identifier[4:]
 
         if data['ends'] == 'never':
             self.end = None
@@ -168,6 +174,13 @@ class Lease6(object):
         self.preferred_life = int(data['preferred-life'])
         self.max_life = int(data['max-life'])
         self.binding_state = " ".join(data['binding'].split(' ')[1:])
+
+    @property
+    def host_identifier_string(self):
+        """
+        Return the host_identifier as a hexidecimal ascii string
+        """
+        return binascii.hexlify(self.host_identifier).decode('ascii')
 
     @property
     def valid(self):
@@ -193,6 +206,21 @@ class Lease6(object):
 
     def __eq__(self, other):
         return self.ip == other.ip and self.host_identifier == other.host_identifier
+
+    def _iaid_duid_to_bytes(self, input_string):
+        """
+        Parse the IAID_DUID from dhcpd.leases to the bytes representation
+
+        This method doesn't support the colon separated hex format yet.
+        """
+        def octal_to_decimal(match):
+            first_group = match.group(1)
+            return "\\" + str(int(first_group, 8))
+
+        regex = r'\\(\d\d\d)'
+        result = re.sub(regex, octal_to_decimal, input_string)
+        result = codecs.decode(result, 'unicode_escape').encode('latin-1')
+        return result
 
 
 if __name__ == "__main__":

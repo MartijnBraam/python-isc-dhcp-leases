@@ -39,7 +39,9 @@ class TestIscDhcpLeases(TestCase):
         result = leases.get()
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].ip, "2001:610:600:891d::60")
-        self.assertEqual(result[0].host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
+        self.assertEqual(result[0].host_identifier, b"4dv\x9c\x00\x01\x00\x01\x029f\x19\x96\x08\x00'\x00\x00\x00")
+        self.assertEqual(result[0].iaid, 878999196)
+        self.assertEqual(result[0].duid, b"\x00\x01\x00\x01\x029f\x19\x96\x08\x00'\x00\x00\x00")
         self.assertEqual(result[0].valid, True)
         self.assertEqual(result[0].active, True)
         self.assertEqual(result[0].binding_state, 'active')
@@ -49,7 +51,9 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].type, Lease6.NON_TEMPORARY)
 
         self.assertEqual(result[1].ip, "2001:610:500:fff::/64")
-        self.assertEqual(result[1].host_identifier, "4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000")
+        self.assertEqual(result[1].host_identifier, b"4dv\x9c\x00\x01\x00\x01\x029f\x19\x96\x08\x00'\x00\x00\x00")
+        self.assertEqual(result[1].iaid, 878999196)
+        self.assertEqual(result[1].duid, b"\x00\x01\x00\x01\x029f\x19\x96\x08\x00'\x00\x00\x00")
         self.assertEqual(result[1].valid, True)
         self.assertEqual(result[1].active, True)
         self.assertEqual(result[1].binding_state, 'active')
@@ -73,19 +77,18 @@ class TestIscDhcpLeases(TestCase):
         self.assertTrue(result["14:da:e9:04:c8:a3"].valid)
         self.assertTrue(result["64:5a:04:6a:07:a2"].valid)
 
-
     def test_get_current_ipv6(self):
         with freeze_time("2015-08-18 17:0:0"):
-            leases =  IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
+            leases = IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
             result = leases.get_current()
             self.assertEqual(len(result), 2)
-            self.assertTrue("pd-4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000" in result)
-            self.assertTrue("na-4dv\352\000\001\000\001\035f\037\342\012\000'\000\000\000" in result)
+            self.assertIn('na-3464769c000100010239661996080027000000', result)
+            self.assertIn('pd-3464769c000100010239661996080027000000', result)
 
             for key, r in result.items():
                 self.assertTrue(r.valid, key)
 
         with freeze_time("2015-08-18 18:0:0"):
-            leases =  IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
+            leases = IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6.leases")
             result = leases.get_current()
             self.assertEqual(len(result), 0)
