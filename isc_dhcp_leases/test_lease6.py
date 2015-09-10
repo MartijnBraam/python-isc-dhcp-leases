@@ -40,7 +40,7 @@ class TestLease6(TestCase):
     @freeze_time("2015-07-6 8:15:0")
     def test_valid(self):
         lease = Lease6("2001:610:600:891d::60", self.lease_data, datetime(2015, 8, 18, 16, 55, 37),
-                       u"4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
+                       "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
         self.assertTrue(lease.valid)  # Lease is forever
 
         lease.end = datetime(2015, 7, 6, 13, 57, 4)
@@ -51,9 +51,9 @@ class TestLease6(TestCase):
 
     def test_eq(self):
         lease_a = Lease6("2001:610:600:891d::60", self.lease_data, datetime(2015, 8, 18, 16, 55, 37),
-                         u"4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
+                         "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
         lease_b = Lease6("2001:610:600:891d::60", self.lease_data, datetime(2015, 8, 18, 16, 55, 37),
-                         u"4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
+                         "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
 
         self.assertEqual(lease_a, lease_b)
 
@@ -61,5 +61,5 @@ class TestLease6(TestCase):
         self.assertNotEqual(lease_a, lease_b)
 
         lease_b.ip = "2001:610:600:891d::60"
-        lease_b.host_identifier = u"gd4\352\000\001\000\001\035b\037\322\012\000'\000\000\000"
+        lease_b.host_identifier = "gd4\352\000\001\000\001\035b\037\322\012\000'\000\000\000"
         self.assertNotEqual(lease_a, lease_b)
