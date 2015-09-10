@@ -2,6 +2,7 @@ import re
 import datetime
 import codecs
 import struct
+import binascii
 
 
 def parse_time(s):
@@ -176,7 +177,10 @@ class Lease6(object):
 
     @property
     def host_identifier_string(self):
-        return codecs.encode(self.host_identifier, 'hex').decode('ascii')
+        """
+        Return the host_identifier as a hexidecimal ascii string
+        """
+        return binascii.hexlify(self.host_identifier).decode('ascii')
 
     @property
     def valid(self):
@@ -204,6 +208,11 @@ class Lease6(object):
         return self.ip == other.ip and self.host_identifier == other.host_identifier
 
     def _iaid_duid_to_bytes(self, input_string):
+        """
+        Parse the IAID_DUID from dhcpd.leases to the bytes representation
+
+        This method doesn't support the colon separated hex format yet.
+        """
         def octal_to_decimal(match):
             first_group = match.group(1)
             return "\\" + str(int(first_group, 8))
