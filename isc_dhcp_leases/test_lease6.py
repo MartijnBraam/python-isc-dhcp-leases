@@ -21,10 +21,10 @@ class TestLease6(TestCase):
                        "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
         self.assertEqual(lease.ip, "2001:610:600:891d::60")
 
-        self.assertEqual(lease.host_identifier, b"4dv\x9c\x00\x01\x00\x01\x029f\x19\x96\x08\x00'\x00\x00\x00")
+        self.assertEqual(lease.host_identifier, b"4dv\xea\x00\x01\x00\x01\x1df\x1f\xe2\n\x00'\x00\x00\x00")
         self.assertEqual(lease.valid, True)
-        self.assertEqual(lease.iaid, 878999196)
-        self.assertEqual(lease.duid, b"\x00\x01\x00\x01\x029f\x19\x96\x08\x00'\x00\x00\x00")
+        self.assertEqual(lease.iaid, 3933627444)
+        self.assertEqual(lease.duid, b"\x00\x01\x00\x01\x1df\x1f\xe2\n\x00'\x00\x00\x00")
         self.assertEqual(lease.active, True)
         self.assertEqual(lease.binding_state, 'active')
         self.assertEqual(lease.preferred_life, 375)

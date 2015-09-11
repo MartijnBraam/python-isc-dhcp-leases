@@ -164,7 +164,7 @@ class Lease6(object):
         self.last_communication = cltt
 
         self.host_identifier = self._iaid_duid_to_bytes(host_identifier)
-        self.iaid = struct.unpack('>i', self.host_identifier[0:4])[0]
+        self.iaid = struct.unpack('<I', self.host_identifier[0:4])[0]
         self.duid = self.host_identifier[4:]
 
         if data['ends'] == 'never':
@@ -213,13 +213,7 @@ class Lease6(object):
 
         This method doesn't support the colon separated hex format yet.
         """
-        def octal_to_decimal(match):
-            first_group = match.group(1)
-            return "\\" + str(int(first_group, 8))
-
-        regex = r'\\(\d\d\d)'
-        result = re.sub(regex, octal_to_decimal, input_string)
-        result = codecs.decode(result, 'unicode_escape').encode('latin-1')
+        result = codecs.decode(input_string, 'unicode_escape').encode('latin-1')
         return result
 
 
