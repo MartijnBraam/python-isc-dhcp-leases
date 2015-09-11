@@ -38,9 +38,6 @@ class DiscoverTest(Command):
     def run(self):
         discover_and_run_tests()
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
-
 setup(
     name='isc_dhcp_leases',
     version='0.5.1',
@@ -50,6 +47,5 @@ setup(
     author='Martijn Braam',
     author_email='martijn@brixit.nl',
     description='Small python module for reading /var/lib/dhcp/dhcpd.leases from isc-dhcp-server',
-    long_description=readme,
     cmdclass={'test': DiscoverTest},
 )
