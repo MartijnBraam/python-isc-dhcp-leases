@@ -1,0 +1,80 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.3.3
+
+server-duid "\000\001\000\001\036\031\350\241\000\014)\345\0202";
+
+ia-na "\001\000\000\000\000\001\000\001\034\367\020\245\000'\"3+4" {
+  cltt 3 2016/01/06 14:50:34;
+  iaaddr 2001:10:10::106 {
+    binding state active;
+    preferred-life 540;
+    max-life 864;
+    ends 3 2016/01/06 15:04:58;
+    set iana = "2001:10:10:0:0:0:0:106";
+    set clientduid = "0100011cf710a5002722332b34";
+    on expiry {
+      log (debug, "===EXPIRY===");
+    }
+    on release {
+      log (debug, "===RELEASE===");
+    }
+  }
+}
+
+ia-pd "\000\000\000\000\000\001\000\001\0354L\000\000%\220k\2414" {
+  cltt 3 2016/01/06 14:52:37;
+  iaprefix 2001:10:30:ff00::/56 {
+    binding state active;
+    preferred-life 540;
+    max-life 864;
+    ends 3 2016/01/06 15:07:01;
+    set iapd = "2001:10:30:ff00:0:0:0:0";
+    set pdsize = "56";
+    set pdnet = "2001:10:30:ff00:0:0:0:0/56";
+    set clientduid = "0100011d344c000025906ba134";
+    on expiry {
+      log (debug, "===EXPIRY===");
+    }
+    on release {
+      log (debug, "===RELEASE===");
+    }
+  }
+}
+
+ia-na "\000\000\000\000\000\001\000\001\0354L\000\000%\220k\2414" {
+  cltt 3 2016/01/06 14:52:46;
+  iaaddr 2001:10:30::1fe {
+    binding state active;
+    preferred-life 540;
+    max-life 864;
+    ends 3 2016/01/06 15:07:10;
+    set iana = "2001:10:30:0:0:0:0:1fe";
+    set clientduid = "0100011d344c000025906ba134";
+    on expiry {
+      log (debug, "===EXPIRY===");
+    }
+    on release {
+      log (debug, "===RELEASE===");
+    }
+  }
+}
+
+ia-pd "\001\000\000\000\000\001\000\001\034\367\020\245\000'\"3+4" {
+  cltt 3 2016/01/06 14:53:35;
+  iaprefix 2001:10:10:ff00::/56 {
+    binding state active;
+    preferred-life 540;
+    max-life 864;
+    ends 3 2016/01/06 15:07:59;
+    set iapd = "2001:10:10:ff00:0:0:0:0";
+    set pdsize = "56";
+    set pdnet = "2001:10:10:ff00:0:0:0:0/56";
+    set clientduid = "0100011cf710a5002722332b34";
+    on expiry {
+      log (debug, "===EXPIRY===");
+    }
+    on release {
+      log (debug, "===RELEASE===");
+    }
+  }
+}
