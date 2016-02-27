@@ -1,6 +1,7 @@
-import re
-import datetime
+import binascii
 import codecs
+import datetime
+import re
 import struct
 
 from six import iteritems
