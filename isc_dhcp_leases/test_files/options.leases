@@ -1,0 +1,16 @@
+lease 10.10.10.10 {
+starts 6 2016/02/27 07:11:41;
+ends 6 2016/02/27 09:11:41;
+cltt 6 2016/02/27 07:11:41;
+binding state active;
+next binding state free;
+rewind binding state free;
+hardware ethernet 24:65:11:d9:a6:b3;
+uid "\377\021\331\246\263\000\003\000\001$e\021\331\246\263";
+option agent.circuit-id 0:1:3:e9;
+option agent.remote-id a4:a2:4a:33:db:e5;
+option agent.DOCSIS-device-class 2;
+option agent.unknown-9 0:0:11:8b:6:1:4:1:2:3:0;
+client-hostname "KRONOS";
+}
+

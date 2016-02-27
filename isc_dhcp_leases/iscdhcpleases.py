@@ -27,7 +27,7 @@ class IscDhcpLeases(object):
         self.regex_leaseblock = re.compile(r"lease (?P<ip>\d+\.\d+\.\d+\.\d+) {(?P<config>[\s\S]+?)\n}")
         self.regex_leaseblock6 = re.compile(
             r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
-        self.regex_properties = re.compile(r"\s+(?P<key>\S+) (?P<value>[\s\S]+?);")
+        self.regex_properties = re.compile(r"\s+(?P<key>option\s+\S+|\S+) (?P<value>[\s\S]+?);")
         self.regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
     def get(self):
@@ -106,6 +106,12 @@ class Lease(object):
         else:
             self.end = parse_time(data['ends'])
 
+        self.options = {}
+        for key in data:
+            if key.startswith('option '):
+                part = key.split(' ')
+                self.options[part[1]] = self.data[key]
+
         self._hardware = data['hardware'].split(' ')
         self.ethernet = self._hardware[1]
         self.hardware = self._hardware[0]
@@ -172,6 +178,13 @@ class Lease6(object):
             self.end = None
         else:
             self.end = parse_time(data['ends'])
+
+        self.options = {}
+        for key in data:
+            if key.startswith('option '):
+                part = key.split(' ')
+                self.options[part[1]] = self.data[key]
+
         self.preferred_life = int(data['preferred-life'])
         self.max_life = int(data['max-life'])
         self.binding_state = " ".join(data['binding'].split(' ')[1:])

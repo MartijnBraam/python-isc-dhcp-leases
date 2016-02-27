@@ -89,6 +89,24 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[1].last_communication, datetime(2016, 1, 6, 14, 52, 37))
         self.assertEqual(result[1].type, Lease6.PREFIX_DELEGATION)
 
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/options.leases")
+        result = leases.get()
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].ip, "10.10.10.10")
+        self.assertEqual(result[0].valid, False)
+        self.assertEqual(result[0].active, True)
+        self.assertEqual(result[0].binding_state, 'active')
+        self.assertEqual(result[0].hardware, "ethernet")
+        self.assertEqual(result[0].ethernet, "24:65:11:d9:a6:b3")
+        self.assertEqual(result[0].hostname, "KRONOS")
+        self.assertEqual(result[0].start, datetime(2016, 2, 27, 7, 11, 41))
+        self.assertEqual(result[0].end, datetime(2016, 2, 27, 9, 11, 41))
+        self.assertEqual(len(result[0].options), 4)
+        self.assertDictEqual(result[0].options,
+                             {'agent.DOCSIS-device-class': '2',
+                              'agent.circuit-id': '0:1:3:e9',
+                              'agent.remote-id': 'a4:a2:4a:33:db:e5',
+                              'agent.unknown-9': '0:0:11:8b:6:1:4:1:2:3:0'})
 
     @freeze_time("2015-07-6 8:15:0")
     def test_get_current(self):

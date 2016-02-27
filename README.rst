@@ -57,6 +57,7 @@ The Lease object has the following fields (only for IPv4 leases)
     lease.data           # Dict of all the info in the dhcpd.leases file for this lease
     lease.valid          # True if the lease hasn't expired and is not in the future
     lease.active         # True if the binding state is active
+    lease.options        # List of extra options in the lease file
 
 The Lease6 object has the following fields (only for IPv6)
 
@@ -77,6 +78,7 @@ The Lease6 object has the following fields (only for IPv6)
     lease.binding_state      # The binding state as string ('active', 'free', 'abandoned', 'backup')
     lease.preferred_life     # The preferred lifetime in seconds
     lease.max_life           # The valid lifetime for this address in seconds
+    lease.options            # List of extra options in the lease file
     lease.data               # Dict of all the info in the dhcpd6.leases file for this lease
 
 Unit tests
