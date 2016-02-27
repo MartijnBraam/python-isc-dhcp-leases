@@ -21,6 +21,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].hostname, "")
         self.assertEqual(result[0].start, datetime(2013, 12, 10, 12, 57, 4))
         self.assertEqual(result[0].end, datetime(2013, 12, 10, 13, 7, 4))
+        self.assertEqual(result[0].sets, {'vendor-class-identifier': 'Some Vendor Identifier'})
 
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/pfsense.leases")
         result = leases.get()
@@ -76,6 +77,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].max_life, 864)
         self.assertEqual(result[0].last_communication, datetime(2016, 1, 6, 14, 50, 34))
         self.assertEqual(result[0].type, Lease6.NON_TEMPORARY)
+        self.assertEqual(result[0].sets, dict(iana='2001:10:10:0:0:0:0:106', clientduid='0100011cf710a5002722332b34'))
 
         self.assertEqual(result[1].ip, "2001:10:30:ff00::/56")
         self.assertEqual(result[1].host_identifier, b"\x00\x00\x00\x00\x00\x01\x00\x01\x1d4L\x00\x00%\x90k\xa14")
@@ -88,6 +90,9 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[1].max_life, 864)
         self.assertEqual(result[1].last_communication, datetime(2016, 1, 6, 14, 52, 37))
         self.assertEqual(result[1].type, Lease6.PREFIX_DELEGATION)
+        self.assertEqual(result[1].sets, dict(iapd='2001:10:30:ff00:0:0:0:0', pdsize='56',
+                                              pdnet='2001:10:30:ff00:0:0:0:0/56',
+                                              clientduid='0100011d344c000025906ba134'))
 
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/options.leases")
         result = leases.get()

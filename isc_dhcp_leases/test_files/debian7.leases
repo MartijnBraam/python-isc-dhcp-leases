@@ -9,6 +9,7 @@ lease 10.0.0.10 {
   binding state free;
   hardware ethernet 60:a4:4c:b5:6a:dd;
   uid "\377\000\000\000\002\000\001\000\001\0321\301\300\000#\213\360F\350";
+  set vendor-class-identifier = "Some Vendor Identifier";
 }
 lease 10.0.0.15 {
   starts 4 2014/01/23 13:40:45;
