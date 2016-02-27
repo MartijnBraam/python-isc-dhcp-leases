@@ -2,7 +2,8 @@ import re
 import datetime
 import codecs
 import struct
-import binascii
+
+from six import iteritems
 
 
 def parse_time(s):
@@ -13,6 +14,16 @@ def parse_time(s):
     year, mon, day = date_part.split('/')
     hour, minute, sec = time_part.split(':')
     return datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
+
+
+def _parse_options(data):
+    options = {}
+    for key, value in iteritems(data):
+        if key.startswith('option '):
+            name = key.split(' ', 3)[1]
+            options[name] = value
+
+    return options
 
 
 class IscDhcpLeases(object):
@@ -106,11 +117,7 @@ class Lease(object):
         else:
             self.end = parse_time(data['ends'])
 
-        self.options = {}
-        for key in data:
-            if key.startswith('option '):
-                part = key.split(' ')
-                self.options[part[1]] = self.data[key]
+        self.options = _parse_options(self.data)
 
         self._hardware = data['hardware'].split(' ')
         self.ethernet = self._hardware[1]
@@ -179,11 +186,7 @@ class Lease6(object):
         else:
             self.end = parse_time(data['ends'])
 
-        self.options = {}
-        for key in data:
-            if key.startswith('option '):
-                part = key.split(' ')
-                self.options[part[1]] = self.data[key]
+        self.options = _parse_options(self.data)
 
         self.preferred_life = int(data['preferred-life'])
         self.max_life = int(data['max-life'])
