@@ -34,7 +34,7 @@ Usage
 
 .. code:: python
 
-    from isc_dhcp_leases.iscdhcpleases import Lease, IscDhcpLeases
+    from isc_dhcp_leases import Lease, IscDhcpLeases
 
     leases = IscDhcpLeases('/path/to/dhcpd.leases')
     leases.get()  # Returns the leases as a list of Lease objects
