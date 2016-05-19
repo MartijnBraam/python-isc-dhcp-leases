@@ -43,6 +43,7 @@ setup(
     version='0.7.0',
     packages=['isc_dhcp_leases'],
     url='https://github.com/MartijnBraam/python-isc-dhcp-leases',
+    install_requires=['six'],
     license='MIT',
     author='Martijn Braam',
     author_email='martijn@brixit.nl',
