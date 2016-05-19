@@ -47,3 +47,10 @@ lease 10.0.0.16 {
   hardware ethernet 6c:71:d9:21:55:71;
   uid "\001lq\331!Uq";
 }
+lease 10.0.0.17 {
+  starts 2 2008/01/08 18:09:46;
+  ends 2 2008/01/08 18:09:46;
+  tstp 2 2008/01/08 18:09:46;
+  binding state abandoned;
+  next binding state free;
+}
