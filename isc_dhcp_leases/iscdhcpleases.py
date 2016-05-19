@@ -249,6 +249,6 @@ class Lease6(BaseLease):
         return result
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     leases = IscDhcpLeases('dhcpd.leases')
     print(leases.get_current())
