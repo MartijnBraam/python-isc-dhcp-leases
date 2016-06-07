@@ -36,7 +36,7 @@ def _parse_set(data):
     return sets
 
 def _convert_properties(properties):
-    props = (m.groups() for m in properties)
+    props = ((m.group(1), m.group(2)) for m in properties)
     return {key: value for (key, value) in props}
 
 
