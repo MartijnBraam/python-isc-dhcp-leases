@@ -17,27 +17,76 @@ def parse_time(s):
     return datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
 
 
-def _parse_data(data, prefix):
-    for key, value in iteritems(data):
-        if key.startswith(prefix):
-            name = key.split(' ', 3)[1]
-            yield name, value
+def _extract_prop_option(line):
+    """
+    Extract the (key,value)-tuple from a string like:
+    >>> "option foobar 123"
+    :param line:
+    :return: tuple (key, value)
+    """
+    line = line[7:]
+    pos = line.find(' ')
+    return line[:pos], line[pos+1:]
 
-def _parse_options(data):
-    options = dict(_parse_data(data, 'option '))
-    return options
+
+def _extract_prop_set(line):
+    """
+    Extract the (key, value)-tuple from a tring like:
+    >>> 'set foo = "bar"'
+    :param line:
+    :return: tuple (key, value)
+    """
+    token = ' = "'
+    line = line[4:]
+    pos = line.find(token)
+    return line[:pos], line[pos+4:-1]
 
 
-def _parse_set(data):
-    sets = {}
-    for key, value in _parse_data(data, 'set '):
-        sets[key] = value.split('= "', 1)[1][:-1]
+def _extract_prop_general(line):
+    """
+    Extract the (key, value)-tuple from a "standard" property line like:
+    >>> 'hardware ethernet 12:34:56:78:90:AB'
+    :param line:
+    :return: tuple (key, value)
+    """
+    pos = line.find(' ')
+    return line[:pos], line[pos+1:]
 
-    return sets
 
-def _convert_properties(properties):
-    props = ((m.group(1), m.group(2)) for m in properties)
-    return {key: value for (key, value) in props}
+def _extract_properties(config):
+    """
+    Parse a line within a lease block
+    The line should basically match the expression:
+    >>> r"\s+(?P<key>(?:option|set)\s+\S+|\S+) (?P<value>[\s\S]+?);"
+    For easier seperation of the cases and faster parsing this is done using substrings etc..
+    :param config:
+    :return: tuple of properties dict, options dict and sets dict
+    """
+    general, options, sets = {}, {}, {}
+    for line in config.splitlines():
+
+        # skip empty & malformed lines
+        if not line or not line[-1:] == ';':
+            continue
+
+        # strip the trailing ';' and remove any whitespaces on the left side
+        line = line[:-1].lstrip()
+
+        # seperate the three cases
+        if line[:6] == 'option':
+            key, value = _extract_prop_option(line)
+            options[key] = value
+
+        elif line[:3] == 'set':
+            key, value = _extract_prop_set(line)
+            sets[key] = value
+
+        else:
+            # fall through to generic case
+            key, value = _extract_prop_general(line)
+            general[key] = value
+
+    return general, options, sets
 
 
 class IscDhcpLeases(object):
@@ -47,12 +96,10 @@ class IscDhcpLeases(object):
 
     def __init__(self, filename):
         self.filename = filename
-        self.last_leases = {}
 
         self.regex_leaseblock = re.compile(r"lease (?P<ip>\d+\.\d+\.\d+\.\d+) {(?P<config>[\s\S]+?)\n}")
         self.regex_leaseblock6 = re.compile(
             r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
-        self.regex_properties = re.compile(r"\s+(?P<key>(?:option|set)\s+\S+|\S+) (?P<value>[\s\S]+?);")
         self.regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
     def get(self):
@@ -65,27 +112,28 @@ class IscDhcpLeases(object):
             for match in self.regex_leaseblock.finditer(lease_data):
                 block = match.groupdict()
 
-                properties = _convert_properties(self.regex_properties.finditer(block['config']))
+                properties, options, sets = _extract_properties(block['config'])
 
                 if 'hardware' not in properties:
                     # E.g. rows like {'binding': 'state abandoned', ...}
                     continue
-                lease = Lease(block['ip'], properties)
+                lease = Lease(block['ip'], properties=properties, options=options, sets=sets)
                 leases.append(lease)
 
             for match in self.regex_leaseblock6.finditer(lease_data):
                 block = match.groupdict()
-                properties = _convert_properties(self.regex_properties.finditer(block['config']))
-                
+                properties, options, sets = _extract_properties(block['config'])
+
                 host_identifier = block['id']
                 block_type = block['type']
                 last_client_communication = parse_time(properties['cltt'])
 
                 for address_block in self.regex_iaaddr.finditer(block['config']):
                     block = address_block.groupdict()
-                    properties = _convert_properties(self.regex_properties.finditer(block['config']))
+                    properties, options, sets = _extract_properties(block['config'])
 
-                    lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type)
+                    lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type,
+                                   options=options, sets=sets)
                     leases.append(lease)
 
         return leases
@@ -117,12 +165,18 @@ class BaseLease(object):
         sets        Dict of key-value set statement values from this lease
     """
 
-    def __init__(self, ip, data):
+    def __init__(self, ip, properties, options=None, sets=None):
+        if options is None:
+            options = {}
+
+        if sets is None:
+            sets = {}
+
         self.ip = ip
-        self.data = data
-        self.options = _parse_options(self.data)
-        self.sets = _parse_set(self.data)
-        self.binding_state = " ".join(data['binding'].split(' ')[1:])
+        self.data = properties
+        self.options = options
+        self.sets = sets
+        _, self.binding_state = properties['binding'].split(' ', 1)
 
     @property
     def active(self):
@@ -148,19 +202,19 @@ class Lease(BaseLease):
         data            Dict of all the info in the dhcpd.leases file for this lease
     """
 
-    def __init__(self, ip, data):
-        super(Lease, self).__init__(ip, data)
+    def __init__(self, ip, properties, options=None, sets=None):
+        super(Lease, self).__init__(ip, properties=properties, options=options, sets=sets)
 
-        self.start = parse_time(data['starts'])
-        if data['ends'] == 'never':
+        self.start = parse_time(properties['starts'])
+        if properties['ends'] == 'never':
             self.end = None
         else:
-            self.end = parse_time(data['ends'])
+            self.end = parse_time(properties['ends'])
 
-        self._hardware = data['hardware'].split(' ')
+        self._hardware = properties['hardware'].split(' ')
         self.ethernet = self._hardware[1]
         self.hardware = self._hardware[0]
-        self.hostname = data.get('client-hostname', '').replace("\"", "")
+        self.hostname = properties.get('client-hostname', '').replace("\"", "")
 
     @property
     def valid(self):
@@ -200,8 +254,8 @@ class Lease6(BaseLease):
 
     (TEMPORARY, NON_TEMPORARY, PREFIX_DELEGATION) = ('ta', 'na', 'pd')
 
-    def __init__(self, ip, data,  cltt, host_identifier, address_type):
-        super(Lease6, self).__init__(ip, data)
+    def __init__(self, ip, properties, cltt, host_identifier, address_type, options={}, sets={}):
+        super(Lease6, self).__init__(ip, properties=properties, options=options, sets=sets)
 
         self.type = address_type
         self.last_communication = cltt
@@ -210,13 +264,13 @@ class Lease6(BaseLease):
         self.iaid = struct.unpack('<I', self.host_identifier[0:4])[0]
         self.duid = self.host_identifier[4:]
 
-        if data['ends'] == 'never':
+        if properties['ends'] == 'never':
             self.end = None
         else:
-            self.end = parse_time(data['ends'])
+            self.end = parse_time(properties['ends'])
 
-        self.preferred_life = int(data['preferred-life'])
-        self.max_life = int(data['max-life'])
+        self.preferred_life = int(properties['preferred-life'])
+        self.max_life = int(properties['max-life'])
 
     @property
     def host_identifier_string(self):
