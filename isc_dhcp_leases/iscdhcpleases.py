@@ -35,6 +35,10 @@ def _parse_set(data):
 
     return sets
 
+def _convert_properties(properties):
+    props = (m.groups() for m in properties)
+    return {key: value for (key, value) in props}
+
 
 class IscDhcpLeases(object):
     """
@@ -48,7 +52,7 @@ class IscDhcpLeases(object):
         self.regex_leaseblock = re.compile(r"lease (?P<ip>\d+\.\d+\.\d+\.\d+) {(?P<config>[\s\S]+?)\n}")
         self.regex_leaseblock6 = re.compile(
             r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
-        self.regex_properties = re.compile(r"\s+(?P<key>(option|set)\s+\S+|\S+) (?P<value>[\s\S]+?);")
+        self.regex_properties = re.compile(r"\s+(?P<key>(?:option|set)\s+\S+|\S+) (?P<value>[\s\S]+?);")
         self.regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
     def get(self):
@@ -61,8 +65,8 @@ class IscDhcpLeases(object):
             for match in self.regex_leaseblock.finditer(lease_data):
                 block = match.groupdict()
 
-                properties = self.regex_properties.findall(block['config'])
-                properties = {key: value for (key, _, value) in properties}
+                properties = _convert_properties(self.regex_properties.finditer(block['config']))
+
                 if 'hardware' not in properties:
                     # E.g. rows like {'binding': 'state abandoned', ...}
                     continue
@@ -71,16 +75,15 @@ class IscDhcpLeases(object):
 
             for match in self.regex_leaseblock6.finditer(lease_data):
                 block = match.groupdict()
-                properties = self.regex_properties.findall(block['config'])
-                properties = {key: value for (key, _, value) in properties}
+                properties = _convert_properties(self.regex_properties.finditer(block['config']))
+                
                 host_identifier = block['id']
                 block_type = block['type']
                 last_client_communication = parse_time(properties['cltt'])
 
                 for address_block in self.regex_iaaddr.finditer(block['config']):
                     block = address_block.groupdict()
-                    properties = self.regex_properties.findall(block['config'])
-                    properties = {key: value for (key, _, value) in properties}
+                    properties = _convert_properties(self.regex_properties.finditer(block['config']))
 
                     lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type)
                     leases.append(lease)
