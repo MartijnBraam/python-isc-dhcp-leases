@@ -26,7 +26,7 @@ def _extract_prop_option(line):
     """
     line = line[7:]
     pos = line.find(' ')
-    return line[:pos], line[pos+1:]
+    return line[:pos], line[pos + 1:]
 
 
 def _extract_prop_set(line):
@@ -39,7 +39,7 @@ def _extract_prop_set(line):
     token = ' = "'
     line = line[4:]
     pos = line.find(token)
-    return line[:pos], line[pos+4:-1]
+    return line[:pos], line[pos + 4:-1]
 
 
 def _extract_prop_general(line):
@@ -50,7 +50,7 @@ def _extract_prop_general(line):
     :return: tuple (key, value)
     """
     pos = line.find(' ')
-    return line[:pos], line[pos+1:]
+    return line[:pos], line[pos + 1:]
 
 
 def _extract_properties(config):
@@ -101,7 +101,6 @@ class IscDhcpLeases(object):
 
     def __init__(self, filename):
         self.filename = filename
-
 
     def get(self):
         """
