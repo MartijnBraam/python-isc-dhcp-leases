@@ -254,7 +254,10 @@ class Lease6(BaseLease):
 
     (TEMPORARY, NON_TEMPORARY, PREFIX_DELEGATION) = ('ta', 'na', 'pd')
 
-    def __init__(self, ip, properties, cltt, host_identifier, address_type, options={}, sets={}):
+    def __init__(self, ip, properties, cltt, host_identifier, address_type, options=None, sets=None):
+        options = options or {}
+        sets = sets or {}
+
         super(Lease6, self).__init__(ip, properties=properties, options=options, sets=sets)
 
         self.type = address_type
