@@ -31,7 +31,7 @@ def _extract_prop_option(line):
 
 def _extract_prop_set(line):
     """
-    Extract the (key, value)-tuple from a tring like:
+    Extract the (key, value)-tuple from a string like:
     >>> 'set foo = "bar"'
     :param line:
     :return: tuple (key, value)
