@@ -160,7 +160,7 @@ class IscDhcpLeases(object):
         """
         valid_leases = self.get_valid()
         leases = {}
-        for lease in valid_leases:
+        for lease in valid_leases.values():
             if lease.active:
                 if type(lease) is Lease:
                     leases[lease.ethernet] = lease
