@@ -145,6 +145,12 @@ class IscDhcpLeases(object):
 
 
     def get(self):
+        from warnings import warn
+        warn('get is deprecated, use leases property or update() function', DeprecationWarning)
+        return self.leases
+
+    @property
+    def leases(self):
         return self._leases
 
     def get_current(self):
@@ -152,7 +158,7 @@ class IscDhcpLeases(object):
         Parse the lease file and return a dict of active and valid Lease instances.
         The key for this dict is the ethernet address of the lease.
         """
-        all_leases = self.get()
+        all_leases = self.leases
         leases = {}
         for lease in all_leases:
             if lease.valid and lease.active:
