@@ -99,13 +99,17 @@ class IscDhcpLeases(object):
         r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
     regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
+    _leases = []
+
     def __init__(self, filename):
         self.filename = filename
+        self.update()
 
-    def get(self):
+    def update(self):
         """
         Parse the lease file and return a list of Lease instances.
         """
+        self._leases = []
         leases = []
         with open(self.filename) as lease_file:
             lease_data = lease_file.read()
@@ -136,7 +140,12 @@ class IscDhcpLeases(object):
                                    options=options, sets=sets)
                     leases.append(lease)
 
+        self._leases = leases
         return leases
+
+
+    def get(self):
+        return self._leases
 
     def get_current(self):
         """
