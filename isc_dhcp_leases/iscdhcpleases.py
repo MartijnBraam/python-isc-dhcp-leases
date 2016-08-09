@@ -158,15 +158,7 @@ class IscDhcpLeases(object):
         Parse the lease file and return a dict of active and valid Lease instances.
         The key for this dict is the ethernet address of the lease.
         """
-        valid_leases = self.get_valid()
-        leases = {}
-        for lease in valid_leases.values():
-            if lease.active:
-                if type(lease) is Lease:
-                    leases[lease.ethernet] = lease
-                elif type(lease) is Lease6:
-                    leases['%s-%s' % (lease.type, lease.host_identifier_string)] = lease
-        return leases
+        return dict([key, lease] for key, lease in self.get_valid() if lease.active)
 
     def get_valid(self):
         """
