@@ -37,8 +37,11 @@ Usage
     from isc_dhcp_leases import Lease, IscDhcpLeases
 
     leases = IscDhcpLeases('/path/to/dhcpd.leases')
-    leases.get()  # Returns the leases as a list of Lease objects
-    leases.get_current()  # Returns only the currently valid dhcp leases as dict
+    leases.leases         # Returns the leases as a list of Lease objects
+    leases.get_current()  # Returns only the currently active dhcp leases as dict
+                          # The key of the dict is the device mac address and the
+                          # Value is a Lease object
+    leases.get_valid()    # Returns only the currently valid dhcp leases as dict
                           # The key of the dict is the device mac address and the
                           # Value is a Lease object
 
