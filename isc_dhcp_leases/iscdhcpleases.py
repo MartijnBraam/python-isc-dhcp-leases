@@ -4,6 +4,7 @@ import datetime
 import re
 import struct
 
+
 from six import iteritems
 
 
@@ -158,7 +159,7 @@ class IscDhcpLeases(object):
         Parse the lease file and return a dict of active and valid Lease instances.
         The key for this dict is the ethernet address of the lease.
         """
-        return dict([key, lease] for key, lease in self.get_valid() if lease.active)
+        return dict([key, lease] for key, lease in iteritems(self.get_valid()) if lease.active)
 
     def get_valid(self):
         """
