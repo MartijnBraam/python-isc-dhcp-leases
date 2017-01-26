@@ -46,7 +46,7 @@ The Lease object has the following fields (only for IPv4 leases)
 
 .. code:: python
 
-    lease = Lease()
+    lease instanceof Lease
     lease.ip             # The ip address assigned by this lease as string
     lease.ethernet       # The mac address of the lease
     lease.hardware       # The OSI physical layer used to request the lease (usually ethernet)
@@ -65,7 +65,7 @@ The Lease6 object has the following fields (only for IPv6)
 
 .. code:: python
 
-    lease = Lease6()
+    lease instanceof Lease6
     lease.ip                 # The ip address assigned by this lease as string
     lease.type               # If this is a temporary or permanent address. I's one of the following:
                              # Lease6.TEMPORARY: Temporary lease
