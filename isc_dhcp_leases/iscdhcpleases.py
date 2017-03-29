@@ -206,7 +206,7 @@ class Lease(BaseLease):
         super(Lease, self).__init__(ip, properties=properties, options=options, sets=sets)
 
         self.start = parse_time(properties['starts'])
-        if properties['ends'] == 'never':
+        if properties.get('ends', 'never') == 'never':
             self.end = None
         else:
             self.end = parse_time(properties['ends'])
@@ -267,7 +267,7 @@ class Lease6(BaseLease):
         self.iaid = struct.unpack('<I', self.host_identifier[0:4])[0]
         self.duid = self.host_identifier[4:]
 
-        if properties['ends'] == 'never':
+        if properties.get('ends', 'never') == 'never':
             self.end = None
         else:
             self.end = parse_time(properties['ends'])
