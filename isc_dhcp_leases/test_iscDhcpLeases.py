@@ -113,6 +113,17 @@ class TestIscDhcpLeases(TestCase):
                               'agent.remote-id': 'a4:a2:4a:33:db:e5',
                               'agent.unknown-9': '0:0:11:8b:6:1:4:1:2:3:0'})
 
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/static.leases")
+        result = leases.get()
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].ip, "10.0.0.15")
+        self.assertEqual(result[0].valid, False)
+        self.assertEqual(result[0].active, False)
+        self.assertEqual(result[0].binding_state, "free")
+        self.assertEqual(result[0].hardware, "ethernet")
+        self.assertEqual(result[0].start, datetime(2015, 9, 10, 0, 29, 0))
+        self.assertIsNone(result[0].end)
+
     @freeze_time("2015-07-6 8:15:0")
     def test_get_current(self):
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/debian7.leases")
