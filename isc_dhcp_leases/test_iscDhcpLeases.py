@@ -115,7 +115,7 @@ class TestIscDhcpLeases(TestCase):
 
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/static.leases")
         result = leases.get()
-        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result), 1)
         self.assertEqual(result[0].ip, "10.0.0.15")
         self.assertEqual(result[0].valid, False)
         self.assertEqual(result[0].active, False)
