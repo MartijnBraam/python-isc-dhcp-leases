@@ -19,6 +19,21 @@ Through pypi
 
     $ sudo pip install isc_dhcp_leases
 
+Through your distribution package manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This python module is currently packaged in Debian unstable (release for Debian 9) and will be packaged in Ubuntu 17.04
+(Zesty Zapus)
+
+.. code:: bash
+
+    # For the python 2.7 interperter
+    $ sudo apt install python-isc-dhcp-leases
+
+    # For the python 3 interperter
+    $ sudo apt install python3-isc-dhcp-leases
+
+
 Through git
 ~~~~~~~~~~~
 
