@@ -178,8 +178,8 @@ class BaseLease(object):
         self.sets = sets
         try:
             _, self.binding_state = properties['binding'].split(' ', 1)
-        except KeyError, e:
-            print('Key error while trying to assign the binding property.\nPlease check if %s is available in your dhcp lease file.' % str(e))
+        except KeyError:
+            print('Key error while trying to assign the binding property.\nPlease check if %s is available in your dhcp lease file.')
             exit(1)
 
     @property
