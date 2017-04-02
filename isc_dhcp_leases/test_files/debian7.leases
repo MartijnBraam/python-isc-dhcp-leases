@@ -54,3 +54,9 @@ lease 10.0.0.17 {
   binding state abandoned;
   next binding state free;
 }
+lease 10.0.0.22 {
+  starts 2 2008/01/08 18:09:46;
+  ends 2 2008/01/08 18:09:46;
+  tstp 2 2008/01/08 18:09:46;
+  next binding state free;
+}
