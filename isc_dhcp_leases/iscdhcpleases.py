@@ -4,6 +4,7 @@ import datetime
 import re
 import struct
 
+
 from six import iteritems
 
 
@@ -99,13 +100,17 @@ class IscDhcpLeases(object):
         r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
     regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
+    _leases = []
+
     def __init__(self, filename):
         self.filename = filename
+        self.update()
 
-    def get(self):
+    def update(self):
         """
         Parse the lease file and return a list of Lease instances.
         """
+        self._leases = []
         leases = []
         with open(self.filename) as lease_file:
             lease_data = lease_file.read()
@@ -136,23 +141,40 @@ class IscDhcpLeases(object):
                                    options=options, sets=sets)
                     leases.append(lease)
 
+        self._leases = leases
         return leases
+
+
+    def get(self):
+        from warnings import warn
+        warn('get is deprecated, use leases property or update() function', DeprecationWarning)
+        return self.leases
+
+    @property
+    def leases(self):
+        return self._leases
 
     def get_current(self):
         """
-        Parse the lease file and return a dict of active and valid Lease instances.
+        Return only active and valid Lease instances.
         The key for this dict is the ethernet address of the lease.
         """
-        all_leases = self.get()
+        return dict([key, lease] for key, lease in iteritems(self.get_valid()) if lease.active)
+
+    def get_valid(self):
+        """
+        Return only valid Lease instances.
+        The key for this dict is the ethernet address of the lease.
+        """
+        all_leases = self.leases
         leases = {}
         for lease in all_leases:
-            if lease.valid and lease.active:
+            if lease.valid:
                 if type(lease) is Lease:
                     leases[lease.ethernet] = lease
                 elif type(lease) is Lease6:
                     leases['%s-%s' % (lease.type, lease.host_identifier_string)] = lease
         return leases
-
 
 class BaseLease(object):
     """
