@@ -57,6 +57,17 @@ Usage
                           # The key of the dict is the device mac address and the
                           # Value is a Lease object
 
+Or read a gzip'ed file
+.. code:: python
+
+    from isc_dhcp_leases import Lease, IscDhcpLeases
+    # IscDhcpLeases(filename, gzip=False)
+    leases = IscDhcpLeases('/path/to/dhcpd.leases', True) # True param starts the gzip reader
+    leases.get()  # Returns the leases as a list of Lease objects
+    leases.get_current()  # Returns only the currently valid dhcp leases as dict
+                          # The key of the dict is the device mac address and the
+                          # Value is a Lease object
+
 The Lease object has the following fields (only for IPv4 leases)
 
 .. code:: python
