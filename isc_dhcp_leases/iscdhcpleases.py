@@ -3,6 +3,7 @@ import codecs
 import datetime
 import re
 import struct
+import gzip
 
 from six import iteritems
 
@@ -99,16 +100,19 @@ class IscDhcpLeases(object):
         r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
     regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
-    def __init__(self, filename):
+    def __init__(self, filename, gzip=False):
         self.filename = filename
+        self.gzip = gzip
 
     def get(self):
         """
         Parse the lease file and return a list of Lease instances.
         """
         leases = []
-        with open(self.filename) as lease_file:
+        with open(self.filename) if not self.gzip else gzip.open(self.filename) as lease_file:
             lease_data = lease_file.read()
+            if self.gzip:
+                lease_data = lease_data.decode('utf-8')
             for match in self.regex_leaseblock.finditer(lease_data):
                 block = match.groupdict()
 

@@ -154,3 +154,18 @@ class TestIscDhcpLeases(TestCase):
             leases = IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6-4.2.4.leases")
             result = leases.get_current()
             self.assertEqual(len(result), 0)
+
+    def test_gzip_handling(self):
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/debian7.leases.gz",True)
+        result = leases.get()
+        self.assertEqual(len(result), 5)
+        self.assertEqual(result[0].ip, "10.0.0.10")
+        self.assertEqual(result[0].valid, False)
+        self.assertEqual(result[0].active, False)
+        self.assertEqual(result[0].binding_state, 'free')
+        self.assertEqual(result[0].hardware, "ethernet")
+        self.assertEqual(result[0].ethernet, "60:a4:4c:b5:6a:dd")
+        self.assertEqual(result[0].hostname, "")
+        self.assertEqual(result[0].start, datetime(2013, 12, 10, 12, 57, 4))
+        self.assertEqual(result[0].end, datetime(2013, 12, 10, 13, 7, 4))
+        self.assertEqual(result[0].sets, {'vendor-class-identifier': 'Some Vendor Identifier'})
