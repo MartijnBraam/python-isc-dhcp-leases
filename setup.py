@@ -40,7 +40,7 @@ class DiscoverTest(Command):
 
 setup(
     name='isc_dhcp_leases',
-    version='0.8.1',
+    version='0.9.0',
     packages=['isc_dhcp_leases'],
     url='https://github.com/MartijnBraam/python-isc-dhcp-leases',
     install_requires=['six'],
