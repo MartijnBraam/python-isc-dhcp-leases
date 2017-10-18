@@ -16,6 +16,4 @@ lease 10.0.0.2 {
   tsfp 2 2017/10/10 12:05:14;
   atsfp 2 2017/10/10 12:05:14;
   binding state backup;
-  hardware ethernet 2a:b2:2a:b2:2a:b2;
-  uid "\001\000!\314\006\224\351";
 }
