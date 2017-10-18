@@ -104,7 +104,7 @@ class IscDhcpLeases(object):
         self.filename = filename
         self.gzip = gzip
 
-    def get(self):
+    def get(self, include_backups=False):
         """
         Parse the lease file and return a list of Lease instances.
         """
@@ -118,7 +118,7 @@ class IscDhcpLeases(object):
 
                 properties, options, sets = _extract_properties(block['config'])
 
-                if 'hardware' not in properties:
+                if 'hardware' not in properties and not include_backups:
                     # E.g. rows like {'binding': 'state abandoned', ...}
                     continue
                 lease = Lease(block['ip'], properties=properties, options=options, sets=sets)
@@ -215,9 +215,13 @@ class Lease(BaseLease):
         else:
             self.end = parse_time(properties['ends'])
 
-        self._hardware = properties['hardware'].split(' ')
-        self.ethernet = self._hardware[1]
-        self.hardware = self._hardware[0]
+        if 'hardware' in properties:
+            self._hardware = properties['hardware'].split(' ')
+            self.ethernet = self._hardware[1]
+            self.hardware = self._hardware[0]
+        else:
+            self.hardware = None
+            self.ethernet = None
         self.hostname = properties.get('client-hostname', '').replace("\"", "")
 
     @property
