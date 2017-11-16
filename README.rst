@@ -57,7 +57,8 @@ Usage
                           # The key of the dict is the device mac address and the
                           # Value is a Lease object
 
-Or read a gzip'ed file
+Or read a gzip'ed file:
+
 .. code:: python
 
     from isc_dhcp_leases import Lease, IscDhcpLeases
@@ -68,7 +69,7 @@ Or read a gzip'ed file
                           # The key of the dict is the device mac address and the
                           # Value is a Lease object
 
-The Lease object has the following fields (only for IPv4 leases)
+The Lease object has the following fields (only for IPv4 leases):
 
 .. code:: python
 
@@ -87,7 +88,7 @@ The Lease object has the following fields (only for IPv4 leases)
     lease.sets           # List of the 'set' items in the lease file
 
 
-The Lease6 object has the following fields (only for IPv6)
+The Lease6 object has the following fields (only for IPv6):
 
 .. code:: python
 
@@ -113,7 +114,7 @@ The Lease6 object has the following fields (only for IPv6)
 Unit tests
 ----------
 
-The unit tests can be run with setup.py
+The unit tests can be run with ``setup.py``:
 
 .. code:: bash
 
