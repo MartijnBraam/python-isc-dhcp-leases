@@ -1,5 +1,6 @@
 language: python
 sudo: false
+cache: pip
 python:
   - "2.7"
   - "3.2"
@@ -8,6 +9,7 @@ python:
   - "3.5"
 # command to install dependencies
 install:
+  - "pip install -U setuptools pip"
   - "pip install -r requirements.txt"
   - "pip install 'coverage<4'"
   - "pip install coveralls"
