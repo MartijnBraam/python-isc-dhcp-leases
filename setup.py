@@ -49,4 +49,17 @@ setup(
     author_email='martijn@brixit.nl',
     description='Small python module for reading /var/lib/dhcp/dhcpd.leases from isc-dhcp-server',
     cmdclass={'test': DiscoverTest},
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Topic :: Software Development',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5'
+    ]
 )
