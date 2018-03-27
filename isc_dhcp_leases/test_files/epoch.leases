@@ -1,0 +1,18 @@
+lease 10.0.0.1 {
+  starts epoch 1507216949; # Thu Oct 05 15:22:29 2017
+  ends epoch 1508141363; # Mon Oct 16 08:09:23 2017
+  tstp epoch 1508141363; # Mon Oct 16 08:09:23 2017
+  tsfp epoch 1508141363; # Mon Oct 16 08:09:23 2017
+  atsfp epoch 1508141363; # Mon Oct 16 08:09:23 2017
+  cltt epoch 1508167349; # Thu Oct 05 15:22:29 2017
+  binding state backup;
+  hardware ethernet 2a:b2:2a:b2:2a:b2;
+  uid "\001\000!\314\006\224\351";
+}
+lease 10.0.0.2 {
+  starts epoch 1507637114; # Tue Oct 1012:05:14 2017
+  tstp epoch 1507637114; # Tue Oct 1012:05:14 2017
+  tsfp epoch 1507637114; # Tue Oct 1012:05:14 2017
+  atsfp epoch 1507637114; # Tue Oct 1012:05:14 2017
+  binding state backup;
+}
