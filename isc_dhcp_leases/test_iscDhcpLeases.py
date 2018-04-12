@@ -146,6 +146,28 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[1].start, datetime(2017, 10, 10, 12, 5, 14))
         self.assertIsNone(result[1].end)
 
+    @freeze_time("2015-06-6 8:15:0")
+    def test_epoch_leases(self):
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/epoch.leases")
+        result = leases.get()
+        self.assertEqual(len(result), 1)
+        result = leases.get(include_backups=True)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].ip, "10.0.0.1")
+        self.assertEqual(result[0].valid, False)
+        self.assertEqual(result[0].active, False)
+        self.assertEqual(result[0].binding_state, "backup")
+        self.assertEqual(result[0].hardware, "ethernet")
+        self.assertEqual(result[0].start, datetime(2017, 10, 5, 15, 22, 29))
+        self.assertEqual(result[0].end, datetime(2017, 10, 16, 8, 9, 23))
+        self.assertEqual(result[1].ip, "10.0.0.2")
+        self.assertEqual(result[1].valid, False)
+        self.assertEqual(result[1].active, False)
+        self.assertEqual(result[1].binding_state, "backup")
+        self.assertIsNone(result[1].hardware)
+        self.assertEqual(result[1].start, datetime(2017, 10, 10, 12, 5, 14))
+        self.assertIsNone(result[1].end)
+
     @freeze_time("2015-07-6 8:15:0")
     def test_get_current(self):
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/debian7.leases")

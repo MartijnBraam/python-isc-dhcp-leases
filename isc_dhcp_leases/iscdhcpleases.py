@@ -12,10 +12,18 @@ def parse_time(s):
     """
     Like datetime.datetime.strptime(s, "%w %Y/%m/%d %H:%M:%S") but 5x faster.
     """
-    _, date_part, time_part = s.split(' ')
-    year, mon, day = date_part.split('/')
-    hour, minute, sec = time_part.split(':')
-    return datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
+    result = None
+
+    if "epoch" in s:
+        epoch_time = float(s.rstrip().split(' ')[1][:-1])
+        result = datetime.datetime.utcfromtimestamp(epoch_time)
+    else:
+        _, date_part, time_part = s.split(' ')
+        year, mon, day = date_part.split('/')
+        hour, minute, sec = time_part.split(':')
+        result = datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
+
+    return result
 
 
 def _extract_prop_option(line):
@@ -67,7 +75,7 @@ def _extract_properties(config):
     for line in config.splitlines():
 
         # skip empty & malformed lines
-        if not line or not line[-1:] == ';':
+        if not line or not line[-1:] == ';' and '; #' not in line:
             continue
 
         # strip the trailing ';' and remove any whitespaces on the left side
