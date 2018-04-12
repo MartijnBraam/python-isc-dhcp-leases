@@ -63,3 +63,28 @@ class TestLease(TestCase):
         lease_b.ip = "192.168.0.1"
         lease_b.ethernet = "60:a4:4c:b5:6a:de"
         self.assertNotEqual(lease_a, lease_b)
+
+    def test_init_no_starts_property(self):
+        self.lease_data.pop('starts')
+        lease = Lease("192.168.0.1", self.lease_data)
+        self.assertEqual(lease.ip, "192.168.0.1")
+        self.assertEqual(lease.hardware, "ethernet")
+        self.assertEqual(lease.ethernet, "60:a4:4c:b5:6a:dd")
+        self.assertEqual(lease.hostname, "Satellite-C700")
+        self.assertIsNone(lease.end)
+        self.assertIsNone(lease.start)
+        self.assertTrue(lease.valid)
+        self.assertFalse(lease.active)
+        self.assertEqual(lease.binding_state, 'free')
+
+    @freeze_time("2015-07-6 8:15:0")
+    def test_valid_no_starts_property(self):
+        self.lease_data.pop('starts')
+        lease = Lease("192.168.0.1", self.lease_data)
+        self.assertTrue(lease.valid)  # Lease is forever
+
+        lease.end = datetime(2015, 7, 6, 6, 57, 4)
+        self.assertFalse(lease.valid)  # Lease is ended
+
+        lease.end = datetime(2015, 7, 6, 9, 57, 4)
+        self.assertTrue(lease.valid)  # Lease is not expired
