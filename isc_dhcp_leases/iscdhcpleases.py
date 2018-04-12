@@ -208,8 +208,10 @@ class Lease(BaseLease):
 
     def __init__(self, ip, properties, options=None, sets=None):
         super(Lease, self).__init__(ip, properties=properties, options=options, sets=sets)
-
-        self.start = parse_time(properties['starts'])
+        if 'starts' in properties:
+            self.start = parse_time(properties['starts'])
+        else:
+            self.start = None
         if properties.get('ends', 'never') == 'never':
             self.end = None
         else:
@@ -231,9 +233,15 @@ class Lease(BaseLease):
         :return: bool: True if lease is valid
         """
         if self.end is None:
-            return self.start <= datetime.datetime.utcnow()
+            if self.start is not None:
+                return self.start <= datetime.datetime.utcnow()
+            else:
+                return True
         else:
-            return self.start <= datetime.datetime.utcnow() <= self.end
+            if self.start is not None:
+                return self.start <= datetime.datetime.utcnow() <= self.end
+            else:
+                return datetime.datetime.utcnow() <= self.end
 
     def __repr__(self):
         return "<Lease {} for {} ({})>".format(self.ip, self.ethernet, self.hostname)
