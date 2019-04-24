@@ -7,12 +7,15 @@ import gzip
 
 from six import iteritems
 
-
 def parse_time(s):
     """
     Like datetime.datetime.strptime(s, "%w %Y/%m/%d %H:%M:%S") but 5x faster.
     """
     result = None
+
+    # allow time to end with UTC for openbsd dhcpd.leases compatibility
+    if s.endswith(' UTC'):
+        s = s[:-4]
 
     if "epoch" in s:
         epoch_time = float(s.rstrip().split(' ')[1][:-1])
@@ -80,6 +83,10 @@ def _extract_properties(config):
 
         # strip the trailing ';' and remove any whitespaces on the left side
         line = line[:-1].lstrip()
+
+        # munge 'abandoned' flag to parse as key-value for openbsd dhcpd.leases compatibility
+        if line.startswith('abandoned'):
+            line += ' 1'
 
         # seperate the three cases
         if line[:6] == 'option':
@@ -188,7 +195,15 @@ class BaseLease(object):
         self.data = properties
         self.options = options
         self.sets = sets
-        _, self.binding_state = properties['binding'].split(' ', 1)
+        # consider missing 'binding' field as 'active' for openbsd dhcpd.leases compatibility
+        if 'binding' in properties:
+            _, self.binding_state = properties['binding'].split(' ', 1)
+        else:
+            self.binding_state = 'active'
+
+        # support 'abandoned' property for openbsd dhcpd.leases compatibility
+        if 'abandonded' in properties:
+            self.binding_state = 'abandoned'
 
     @property
     def active(self):

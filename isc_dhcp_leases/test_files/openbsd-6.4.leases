@@ -1,0 +1,45 @@
+lease 192.168.64.40 {
+	starts 2 2019/04/23 17:45:46 UTC;
+	ends 3 2019/04/24 05:45:46 UTC;
+	hardware ethernet 00:15:5d:84:97:62;
+	uid 01:00:15:5d:84:97:62;
+	client-hostname "puffy";
+}
+lease 192.168.64.37 {
+	starts 2 2019/04/23 17:08:29 UTC;
+	ends 3 2019/04/24 05:08:29 UTC;
+	hardware ethernet 40:4e:36:8a:f5:51;
+	uid 01:40:4e:36:8a:f5:51;
+}
+lease 192.168.64.32 {
+	starts 2 2019/04/23 16:50:36 UTC;
+	ends 3 2019/04/24 04:50:36 UTC;
+	hardware ethernet 00:15:5d:84:97:29;
+	client-hostname "devo";
+}
+lease 192.168.64.48 {
+	starts 2 2019/04/23 16:14:00 UTC;
+	ends 3 2019/04/24 04:14:00 UTC;
+	hardware ethernet 00:15:5d:84:97:6b;
+	uid 01:00:15:5d:84:97:6b;
+	client-hostname "testbed";
+}
+lease 192.168.64.52 {
+	starts 2 2019/03/12 19:49:31 UTC;
+	ends 3 2019/03/13 07:49:31 UTC;
+	hardware ethernet 00:a0:cc:63:b6:72;
+}
+lease 192.168.64.53 {
+	starts 2 2019/03/12 17:51:45 UTC;
+	ends 3 2019/03/13 05:51:45 UTC;
+	hardware ethernet 00:a0:cc:63:b6:72;
+	client-hostname "mailhub.rstms.net";
+}
+lease 192.168.64.51 {
+	starts 2 2019/03/12 17:45:21 UTC;
+	ends 2 2019/03/12 17:49:32 UTC;
+	hardware ethernet 00:a0:cc:63:b6:72;
+	abandoned;
+	client-hostname "mailhub.rstms.net";
+}
+

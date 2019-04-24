@@ -5,7 +5,6 @@ from datetime import datetime
 
 __author__ = 'Martijn Braam <martijn@brixit.nl>'
 
-
 class TestIscDhcpLeases(TestCase):
     @freeze_time("2015-07-6 8:15:0")
     def test_get(self):
@@ -123,6 +122,20 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].hardware, "ethernet")
         self.assertEqual(result[0].start, datetime(2015, 9, 10, 0, 29, 0))
         self.assertIsNone(result[0].end)
+
+    @freeze_time("2019-04-24 1:1:1")
+    def test_get(self):
+        leases = IscDhcpLeases("isc_dhcp_leases/test_files/openbsd-6.4.leases")
+        result = leases.get()
+        r=result[0]
+        self.assertEqual(len(result), 7)
+        self.assertEqual(result[0].ip, "192.168.64.40")
+        self.assertEqual(result[0].valid, True)
+        self.assertEqual(result[0].active, True)
+        self.assertEqual(result[0].binding_state, "active")
+        self.assertEqual(result[0].hardware, "ethernet")
+        self.assertEqual(result[0].start, datetime(2019, 4, 23, 17, 45, 46))
+        self.assertEqual(result[0].end, datetime(2019, 4, 24, 5, 45, 46))
 
     @freeze_time("2015-06-6 8:15:0")
     def test_backup_leases(self):
