@@ -214,8 +214,8 @@ class Lease(BaseLease):
         data            Dict of all the info in the dhcpd.leases file for this lease
     """
 
-    def __init__(self, ip, properties, options=None, sets=None):
-        super(Lease, self).__init__(ip, properties=properties, options=options, sets=sets)
+    def __init__(self, ip, properties, **kwargs):
+        super(Lease, self).__init__(ip, properties=properties, **kwargs)
         if 'starts' in properties:
             self.start = parse_time(properties['starts'])
         else:
@@ -278,11 +278,8 @@ class Lease6(BaseLease):
 
     (TEMPORARY, NON_TEMPORARY, PREFIX_DELEGATION) = ('ta', 'na', 'pd')
 
-    def __init__(self, ip, properties, cltt, host_identifier, address_type, options=None, sets=None):
-        options = options or {}
-        sets = sets or {}
-
-        super(Lease6, self).__init__(ip, properties=properties, options=options, sets=sets)
+    def __init__(self, ip, properties, cltt, host_identifier, address_type, **kwargs):
+        super(Lease6, self).__init__(ip, properties=properties, **kwargs)
 
         self.type = address_type
         self.last_communication = cltt
