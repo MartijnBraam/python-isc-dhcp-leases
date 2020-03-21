@@ -23,7 +23,7 @@ def parse_time(s):
         hour, minute, sec = time_part.split(':')
         result = datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
 
-    return result
+    return result.replace(tzinfo=datetime.timezone.utc)
 
 
 def _extract_prop_option(line):
@@ -198,6 +198,9 @@ class BaseLease(object):
         """
         return self.binding_state == 'active'
 
+    @property
+    def now(self):
+        return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
 class Lease(BaseLease):
     """
@@ -242,14 +245,14 @@ class Lease(BaseLease):
         """
         if self.end is None:
             if self.start is not None:
-                return self.start <= datetime.datetime.utcnow()
+                return self.start <= self.now
             else:
                 return True
         else:
             if self.start is not None:
-                return self.start <= datetime.datetime.utcnow() <= self.end
+                return self.start <= self.now <= self.end
             else:
-                return datetime.datetime.utcnow() <= self.end
+                return self.now <= self.end
 
     def __repr__(self):
         return "<Lease {} for {} ({})>".format(self.ip, self.ethernet, self.hostname)
@@ -312,7 +315,7 @@ class Lease6(BaseLease):
         if self.end is None:
             return True
         else:
-            return datetime.datetime.utcnow() <= self.end
+            return self.now <= self.end
 
     def __repr__(self):
         return "<Lease6 {}>".format(self.ip)
