@@ -1,7 +1,7 @@
+import datetime
 from unittest import TestCase
 from isc_dhcp_leases.iscdhcpleases import Lease
 from freezegun import freeze_time
-from datetime import datetime
 
 __author__ = 'Martijn Braam <martijn@brixit.nl>'
 
@@ -26,7 +26,8 @@ class TestLease(TestCase):
         self.assertEqual(lease.hardware, "ethernet")
         self.assertEqual(lease.ethernet, "60:a4:4c:b5:6a:dd")
         self.assertEqual(lease.hostname, "Satellite-C700")
-        self.assertEqual(lease.start, datetime(2013, 12, 10, 12, 57, 4))
+        self.assertEqual(
+            lease.start, datetime.datetime(2013, 12, 10, 12, 57, 4, tzinfo=datetime.timezone.utc))
         self.assertIsNone(lease.end)
         self.assertTrue(lease.valid)
         self.assertFalse(lease.active)
@@ -41,14 +42,14 @@ class TestLease(TestCase):
         lease = Lease("192.168.0.1", self.lease_data)
         self.assertTrue(lease.valid)  # Lease is forever
 
-        lease.end = datetime(2015, 7, 6, 13, 57, 4)
+        lease.end = datetime.datetime(2015, 7, 6, 13, 57, 4, tzinfo=datetime.timezone.utc)
         self.assertTrue(lease.valid)  # Lease is within start and end
 
-        lease.end = datetime(2015, 7, 6, 6, 57, 4)
+        lease.end = lease.end - datetime.timedelta(hours=7)
         self.assertFalse(lease.valid)  # Lease is ended
 
-        lease.start = datetime(2015, 7, 6, 12, 57, 4)
-        lease.end = datetime(2015, 7, 6, 13, 57, 4)
+        lease.start = datetime.datetime(2015, 7, 6, 12, 57, 4, tzinfo=datetime.timezone.utc)
+        lease.end = lease.start + datetime.timedelta(hours=1)
         self.assertFalse(lease.valid)  # Lease is in the future
 
     def test_eq(self):
@@ -83,8 +84,8 @@ class TestLease(TestCase):
         lease = Lease("192.168.0.1", self.lease_data)
         self.assertTrue(lease.valid)  # Lease is forever
 
-        lease.end = datetime(2015, 7, 6, 6, 57, 4)
+        lease.end = datetime.datetime(2015, 7, 6, 6, 57, 4, tzinfo=datetime.timezone.utc)
         self.assertFalse(lease.valid)  # Lease is ended
 
-        lease.end = datetime(2015, 7, 6, 9, 57, 4)
+        lease.end = lease.end + datetime.timedelta(hours=3)
         self.assertTrue(lease.valid)  # Lease is not expired
