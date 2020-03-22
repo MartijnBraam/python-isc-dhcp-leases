@@ -16,7 +16,6 @@ class TestLease6(TestCase):
             'max-life': '600'
         }
 
-    @freeze_time("2015-07-6 8:15:0")
     def test_init(self):
         lease = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
                        "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
@@ -38,10 +37,10 @@ class TestLease6(TestCase):
                        "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
         self.assertEqual(repr(lease), '<Lease6 2001:610:600:891d::60>')
 
-    @freeze_time("2015-07-6 8:15:0")
-    def test_valid(self):
+    def _test_valid(self, now=None):
         lease = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
-                       "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
+                       "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na",
+                       now=now)
         self.assertTrue(lease.valid)  # Lease is forever
 
         lease.end = datetime.datetime(2015, 7, 6, 13, 57, 4, tzinfo=datetime.timezone.utc)
@@ -49,6 +48,14 @@ class TestLease6(TestCase):
 
         lease.end = lease.end - datetime.timedelta(hours=7)
         self.assertFalse(lease.valid)  # Lease is ended
+
+    @freeze_time("2015-07-6 8:15:0")
+    def test_valid_frozen(self):
+        self._test_valid()
+
+    def test_valid_historical(self):
+        self._test_valid(
+            now=datetime.datetime(2015, 7, 6, 8, 15, 0, tzinfo=datetime.timezone.utc))
 
     def test_eq(self):
         lease_a = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
@@ -64,3 +71,9 @@ class TestLease6(TestCase):
         lease_b.ip = "2001:610:600:891d::60"
         lease_b.host_identifier = "gd4\352\000\001\000\001\035b\037\322\012\000'\000\000\000"
         self.assertNotEqual(lease_a, lease_b)
+
+    def test_naive_time(self):
+        with self.assertRaises(ValueError):
+            Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
+                   "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na",
+                   now=datetime.datetime.now())
