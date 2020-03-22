@@ -8,6 +8,10 @@ import gzip
 from six import iteritems
 
 
+def check_datetime(dt):
+    if not (dt is None or (isinstance(dt, datetime.datetime) and dt.tzinfo)):
+        raise ValueError('None or offset-aware datetime required')
+
 def parse_time(s):
     """
     Like datetime.datetime.strptime(s, "%w %Y/%m/%d %H:%M:%S") but 5x faster.
@@ -108,9 +112,12 @@ class IscDhcpLeases(object):
         r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
     regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
-    def __init__(self, filename, gzip=False):
+    def __init__(self, filename, gzip=False, now=None):
+        check_datetime(now)
+
         self.filename = filename
         self.gzip = gzip
+        self.now = now
 
     def get(self, include_backups=False):
         """
@@ -129,7 +136,7 @@ class IscDhcpLeases(object):
                 if 'hardware' not in properties and not include_backups:
                     # E.g. rows like {'binding': 'state abandoned', ...}
                     continue
-                lease = Lease(block['ip'], properties=properties, options=options, sets=sets)
+                lease = Lease(block['ip'], properties=properties, options=options, sets=sets, now=self.now)
                 leases.append(lease)
 
             for match in self.regex_leaseblock6.finditer(lease_data):
@@ -145,7 +152,7 @@ class IscDhcpLeases(object):
                     properties, options, sets = _extract_properties(block['config'])
 
                     lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type,
-                                   options=options, sets=sets)
+                                   options=options, sets=sets, now=self.now)
                     leases.append(lease)
 
         return leases
@@ -177,7 +184,9 @@ class BaseLease(object):
         sets        Dict of key-value set statement values from this lease
     """
 
-    def __init__(self, ip, properties, options=None, sets=None):
+    def __init__(self, ip, properties, options=None, sets=None, now=None):
+        check_datetime(now)
+
         if options is None:
             options = {}
 
@@ -189,6 +198,7 @@ class BaseLease(object):
         self.options = options
         self.sets = sets
         _, self.binding_state = properties['binding'].split(' ', 1)
+        self._now = now
 
     @property
     def active(self):
@@ -200,7 +210,13 @@ class BaseLease(object):
 
     @property
     def now(self):
-        return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        """
+        :return: datetime: real current time, unless a historical time is set
+        """
+        if self._now:
+            return self._now
+        else:
+            return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
 class Lease(BaseLease):
     """

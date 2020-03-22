@@ -19,7 +19,6 @@ class TestLease(TestCase):
             'client-hostname': '"Satellite-C700"'
         }
 
-    @freeze_time("2015-07-6 8:15:0")
     def test_init(self):
         lease = Lease("192.168.0.1", self.lease_data)
         self.assertEqual(lease.ip, "192.168.0.1")
@@ -37,9 +36,8 @@ class TestLease(TestCase):
         lease = Lease("192.168.0.1", self.lease_data)
         self.assertEqual(repr(lease), '<Lease 192.168.0.1 for 60:a4:4c:b5:6a:dd (Satellite-C700)>')
 
-    @freeze_time("2015-07-6 8:15:0")
-    def test_valid(self):
-        lease = Lease("192.168.0.1", self.lease_data)
+    def _test_valid(self, now=None):
+        lease = Lease("192.168.0.1", self.lease_data, now=now)
         self.assertTrue(lease.valid)  # Lease is forever
 
         lease.end = datetime.datetime(2015, 7, 6, 13, 57, 4, tzinfo=datetime.timezone.utc)
@@ -51,6 +49,14 @@ class TestLease(TestCase):
         lease.start = datetime.datetime(2015, 7, 6, 12, 57, 4, tzinfo=datetime.timezone.utc)
         lease.end = lease.start + datetime.timedelta(hours=1)
         self.assertFalse(lease.valid)  # Lease is in the future
+
+    @freeze_time("2015-07-6 8:15:0")
+    def test_valid_frozen(self):
+        self._test_valid()
+
+    def test_valid_historical(self):
+        self._test_valid(
+            now=datetime.datetime(2015, 7, 6, 8, 15, 0, tzinfo=datetime.timezone.utc))
 
     def test_eq(self):
         lease_a = Lease("192.168.0.1", self.lease_data)
@@ -89,3 +95,7 @@ class TestLease(TestCase):
 
         lease.end = lease.end + datetime.timedelta(hours=3)
         self.assertTrue(lease.valid)  # Lease is not expired
+
+    def test_naive_time(self):
+        with self.assertRaises(ValueError):
+            Lease("192.168.0.1", self.lease_data, now=datetime.datetime.now())
