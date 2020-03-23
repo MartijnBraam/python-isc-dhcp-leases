@@ -1,6 +1,6 @@
 import datetime
 from unittest import TestCase
-from isc_dhcp_leases.iscdhcpleases import Lease6
+from isc_dhcp_leases.iscdhcpleases import Lease6, utc
 from freezegun import freeze_time
 
 __author__ = 'Martijn Braam <martijn@brixit.nl>'
@@ -8,7 +8,7 @@ __author__ = 'Martijn Braam <martijn@brixit.nl>'
 
 class TestLease6(TestCase):
     def setUp(self):
-        self.lease_time = datetime.datetime(2015, 8, 18, 16, 55, 37, tzinfo=datetime.timezone.utc)
+        self.lease_time = datetime.datetime(2015, 8, 18, 16, 55, 37, tzinfo=utc)
         self.lease_data = {
             'binding': 'state active',
             'ends': 'never',
@@ -43,7 +43,7 @@ class TestLease6(TestCase):
                        now=now)
         self.assertTrue(lease.valid)  # Lease is forever
 
-        lease.end = datetime.datetime(2015, 7, 6, 13, 57, 4, tzinfo=datetime.timezone.utc)
+        lease.end = datetime.datetime(2015, 7, 6, 13, 57, 4, tzinfo=utc)
         self.assertTrue(lease.valid)  # Lease is before end
 
         lease.end = lease.end - datetime.timedelta(hours=7)
@@ -55,7 +55,7 @@ class TestLease6(TestCase):
 
     def test_valid_historical(self):
         self._test_valid(
-            now=datetime.datetime(2015, 7, 6, 8, 15, 0, tzinfo=datetime.timezone.utc))
+            now=datetime.datetime(2015, 7, 6, 8, 15, 0, tzinfo=utc))
 
     def test_eq(self):
         lease_a = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,

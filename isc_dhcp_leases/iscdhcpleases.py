@@ -8,6 +8,27 @@ import gzip
 from six import iteritems
 
 
+try:
+    utc = datetime.timezone.utc
+except:
+    # Support Python 2.7
+    class UTC(datetime.tzinfo):
+        def fromutc(self, dt):
+            return dt
+
+        def utcffset(self, dt):
+            return datetime.timedelta(0)
+
+        def dst(self, dt):
+            return None
+
+        def tzname(self, dt):
+            return 'UTC'
+
+
+    utc = UTC()
+
+
 def check_datetime(dt):
     if not (dt is None or (isinstance(dt, datetime.datetime) and dt.tzinfo)):
         raise ValueError('None or offset-aware datetime required')
@@ -27,7 +48,7 @@ def parse_time(s):
         hour, minute, sec = time_part.split(':')
         result = datetime.datetime(*map(int, (year, mon, day, hour, minute, sec)))
 
-    return result.replace(tzinfo=datetime.timezone.utc)
+    return result.replace(tzinfo=utc)
 
 
 def _extract_prop_option(line):
@@ -216,7 +237,7 @@ class BaseLease(object):
         if self._now:
             return self._now
         else:
-            return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+            return datetime.datetime.utcnow().replace(tzinfo=utc)
 
 class Lease(BaseLease):
     """
