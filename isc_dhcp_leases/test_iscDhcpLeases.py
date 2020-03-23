@@ -1,6 +1,6 @@
 import datetime
 from unittest import TestCase
-from isc_dhcp_leases.iscdhcpleases import IscDhcpLeases, Lease, Lease6
+from isc_dhcp_leases.iscdhcpleases import IscDhcpLeases, Lease, Lease6, utc
 from freezegun import freeze_time
 
 __author__ = 'Martijn Braam <martijn@brixit.nl>'
@@ -9,7 +9,7 @@ __author__ = 'Martijn Braam <martijn@brixit.nl>'
 class TestIscDhcpLeases(TestCase):
     def _test_get(self, now=None):
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/debian7.leases", now=now)
-        lease_start = datetime.datetime(2013, 12, 10, 12, 57, 4, tzinfo=datetime.timezone.utc)
+        lease_start = datetime.datetime(2013, 12, 10, 12, 57, 4, tzinfo=utc)
         lease_end = lease_start + datetime.timedelta(minutes=10)
         result = leases.get()
         self.assertEqual(len(result), 5)
@@ -25,7 +25,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].sets, {'vendor-class-identifier': 'Some Vendor Identifier'})
 
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/pfsense.leases", now=now)
-        lease_start = datetime.datetime(2015, 7, 6, 7, 50, 42, tzinfo=datetime.timezone.utc)
+        lease_start = datetime.datetime(2015, 7, 6, 7, 50, 42, tzinfo=utc)
         lease_end = lease_start + datetime.timedelta(minutes=30)
         result = leases.get()
         self.assertEqual(len(result), 2)
@@ -53,7 +53,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].max_life, 600)
         self.assertEqual(
             result[0].last_communication,
-            datetime.datetime(2015, 8, 18, 16, 55, 37, tzinfo=datetime.timezone.utc))
+            datetime.datetime(2015, 8, 18, 16, 55, 37, tzinfo=utc))
         self.assertEqual(result[0].type, Lease6.NON_TEMPORARY)
 
         self.assertEqual(result[1].ip, "2001:610:500:fff::/64")
@@ -67,7 +67,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[1].max_life, 200)
         self.assertEqual(
             result[1].last_communication,
-            datetime.datetime(2015, 8, 18, 16, 55, 40, tzinfo=datetime.timezone.utc))
+            datetime.datetime(2015, 8, 18, 16, 55, 40, tzinfo=utc))
         self.assertEqual(result[1].type, Lease6.PREFIX_DELEGATION)
 
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/dhcpd6-4.3.3.leases", now=now)
@@ -84,7 +84,7 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[0].max_life, 864)
         self.assertEqual(
             result[0].last_communication,
-            datetime.datetime(2016, 1, 6, 14, 50, 34, tzinfo=datetime.timezone.utc))
+            datetime.datetime(2016, 1, 6, 14, 50, 34, tzinfo=utc))
         self.assertEqual(result[0].type, Lease6.NON_TEMPORARY)
         self.assertEqual(result[0].sets, dict(iana='2001:10:10:0:0:0:0:106', clientduid='0100011cf710a5002722332b34'))
 
@@ -99,14 +99,14 @@ class TestIscDhcpLeases(TestCase):
         self.assertEqual(result[1].max_life, 864)
         self.assertEqual(
             result[1].last_communication,
-            datetime.datetime(2016, 1, 6, 14, 52, 37, tzinfo=datetime.timezone.utc))
+            datetime.datetime(2016, 1, 6, 14, 52, 37, tzinfo=utc))
         self.assertEqual(result[1].type, Lease6.PREFIX_DELEGATION)
         self.assertEqual(result[1].sets, dict(iapd='2001:10:30:ff00:0:0:0:0', pdsize='56',
                                               pdnet='2001:10:30:ff00:0:0:0:0/56',
                                               clientduid='0100011d344c000025906ba134'))
 
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/options.leases", now=now)
-        lease_start = datetime.datetime(2016, 2, 27, 7, 11, 41, tzinfo=datetime.timezone.utc)
+        lease_start = datetime.datetime(2016, 2, 27, 7, 11, 41, tzinfo=utc)
         lease_end = lease_start + datetime.timedelta(hours=2)
         result = leases.get()
         self.assertEqual(len(result), 1)
@@ -127,7 +127,7 @@ class TestIscDhcpLeases(TestCase):
                               'agent.unknown-9': '0:0:11:8b:6:1:4:1:2:3:0'})
 
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/static.leases", now=now)
-        lease_start = datetime.datetime(2015, 9, 10, 0, 29, 0, tzinfo=datetime.timezone.utc)
+        lease_start = datetime.datetime(2015, 9, 10, 0, 29, 0, tzinfo=utc)
         lease_end = None
         result = leases.get()
         self.assertEqual(len(result), 1)
@@ -145,17 +145,17 @@ class TestIscDhcpLeases(TestCase):
 
     def test_get_historical(self):
         self._test_get(
-            now=datetime.datetime(2015, 7, 6, 8, 15, 0, tzinfo=datetime.timezone.utc))
+            now=datetime.datetime(2015, 7, 6, 8, 15, 0, tzinfo=utc))
 
     @freeze_time("2015-06-6 8:15:0")
     def test_backup_leases(self):
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/backup.leases")
         lease_start = [
-            datetime.datetime(2017, 10, 5, 15, 22, 29, tzinfo=datetime.timezone.utc),
-            datetime.datetime(2017, 10, 10, 12, 5, 14, tzinfo=datetime.timezone.utc),
+            datetime.datetime(2017, 10, 5, 15, 22, 29, tzinfo=utc),
+            datetime.datetime(2017, 10, 10, 12, 5, 14, tzinfo=utc),
         ]
         lease_end = [
-            datetime.datetime(2017, 10, 16, 8, 9, 23, tzinfo=datetime.timezone.utc),
+            datetime.datetime(2017, 10, 16, 8, 9, 23, tzinfo=utc),
             None,
         ]
         result = leases.get()
@@ -181,11 +181,11 @@ class TestIscDhcpLeases(TestCase):
     def test_epoch_leases(self):
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/epoch.leases")
         lease_start = [
-            datetime.datetime(2017, 10, 5, 15, 22, 29, tzinfo=datetime.timezone.utc),
-            datetime.datetime(2017, 10, 10, 12, 5, 14, tzinfo=datetime.timezone.utc),
+            datetime.datetime(2017, 10, 5, 15, 22, 29, tzinfo=utc),
+            datetime.datetime(2017, 10, 10, 12, 5, 14, tzinfo=utc),
         ]
         lease_end = [
-            datetime.datetime(2017, 10, 16, 8, 9, 23, tzinfo=datetime.timezone.utc),
+            datetime.datetime(2017, 10, 16, 8, 9, 23, tzinfo=utc),
             None,
         ]
         result = leases.get()
@@ -240,7 +240,7 @@ class TestIscDhcpLeases(TestCase):
 
     def test_gzip_handling(self):
         leases = IscDhcpLeases("isc_dhcp_leases/test_files/debian7.leases.gz", True)
-        lease_start = datetime.datetime(2013, 12, 10, 12, 57, 4, tzinfo=datetime.timezone.utc)
+        lease_start = datetime.datetime(2013, 12, 10, 12, 57, 4, tzinfo=utc)
         lease_end = lease_start + datetime.timedelta(minutes=10)
         result = leases.get()
         self.assertEqual(len(result), 5)
