@@ -266,9 +266,7 @@ class Lease(BaseLease):
             self.end = parse_time(properties['ends'])
 
         if 'hardware' in properties:
-            self._hardware = properties['hardware'].split(' ')
-            self.ethernet = self._hardware[1]
-            self.hardware = self._hardware[0]
+            self.hardware, self.ethernet = properties['hardware'].split(' ')
         else:
             self.hardware = None
             self.ethernet = None
