@@ -122,16 +122,51 @@ def _extract_properties(config):
 
     return general, options, sets
 
+_regex_leaseblock = re.compile(r"lease (?P<ip>\d+\.\d+\.\d+\.\d+) {(?P<config>[\s\S]+?)\n}")
+_regex_leaseblock6 = re.compile(
+    r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
+_regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
+
+def isc_leases_from_string(lease_data, now=None):
+    """
+    Parse isc-dhcp-server lease file data from a string into lease objects
+    """
+    check_datetime(now)
+    leases = []
+
+    for match in _regex_leaseblock.finditer(lease_data):
+        block = match.groupdict()
+
+        properties, options, sets = _extract_properties(block['config'])
+
+        if 'hardware' not in properties and not include_backups:
+            # E.g. rows like {'binding': 'state abandoned', ...}
+            continue
+        lease = Lease(block['ip'], properties=properties, options=options, sets=sets, now=now)
+        leases.append(lease)
+
+    for match in _regex_leaseblock6.finditer(lease_data):
+        block = match.groupdict()
+        properties, options, sets = _extract_properties(block['config'])
+
+        host_identifier = block['id']
+        block_type = block['type']
+        last_client_communication = parse_time(properties['cltt'])
+
+        for address_block in _regex_iaaddr.finditer(block['config']):
+            block = address_block.groupdict()
+            properties, options, sets = _extract_properties(block['config'])
+
+            lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type,
+                           options=options, sets=sets, now=now)
+            leases.append(lease)
+
+    return leases
 
 class IscDhcpLeases(object):
     """
     Class to parse isc-dhcp-server lease files into lease objects
     """
-
-    regex_leaseblock = re.compile(r"lease (?P<ip>\d+\.\d+\.\d+\.\d+) {(?P<config>[\s\S]+?)\n}")
-    regex_leaseblock6 = re.compile(
-        r"ia-(?P<type>ta|na|pd) \"(?P<id>[^\"\\]*(?:\\.[^\"\\]*)*)\" {(?P<config>[\s\S]+?)\n}")
-    regex_iaaddr = re.compile(r"ia(addr|prefix) (?P<ip>[0-9a-f:]+(/[0-9]+)?) {(?P<config>[\s\S]+?)\n\s+}")
 
     def __init__(self, filename, gzip=False, now=None):
         check_datetime(now)
@@ -144,39 +179,12 @@ class IscDhcpLeases(object):
         """
         Parse the lease file and return a list of Lease instances.
         """
-        leases = []
         with open(self.filename) if not self.gzip else gzip.open(self.filename) as lease_file:
             lease_data = lease_file.read()
             if self.gzip:
                 lease_data = lease_data.decode('utf-8')
-            for match in self.regex_leaseblock.finditer(lease_data):
-                block = match.groupdict()
 
-                properties, options, sets = _extract_properties(block['config'])
-
-                if 'hardware' not in properties and not include_backups:
-                    # E.g. rows like {'binding': 'state abandoned', ...}
-                    continue
-                lease = Lease(block['ip'], properties=properties, options=options, sets=sets, now=self.now)
-                leases.append(lease)
-
-            for match in self.regex_leaseblock6.finditer(lease_data):
-                block = match.groupdict()
-                properties, options, sets = _extract_properties(block['config'])
-
-                host_identifier = block['id']
-                block_type = block['type']
-                last_client_communication = parse_time(properties['cltt'])
-
-                for address_block in self.regex_iaaddr.finditer(block['config']):
-                    block = address_block.groupdict()
-                    properties, options, sets = _extract_properties(block['config'])
-
-                    lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type,
-                                   options=options, sets=sets, now=self.now)
-                    leases.append(lease)
-
-        return leases
+        return isc_leases_from_string(lease_data, now=self.now)
 
     def get_current(self):
         """
