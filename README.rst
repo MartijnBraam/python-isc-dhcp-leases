@@ -39,7 +39,7 @@ Through git
 
 .. code:: bash
 
-    $ git clone git@github.com:MartijnBraam/python-isc-dhcp-leases.git
+    $ git clone https://github.com/MartijnBraam/python-isc-dhcp-leases.git
     $ cd python-isc-dhcp-leases
     $ python setup.py build
     $ sudo python setup.py install
