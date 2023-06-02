@@ -10,6 +10,7 @@ class TestLease6(TestCase):
     def setUp(self):
         self.lease_time = datetime.datetime(2015, 8, 18, 16, 55, 37, tzinfo=utc)
         self.lease_data = {
+            'cltt': '6 2015/8/18 16:55:37',
             'binding': 'state active',
             'ends': 'never',
             'preferred-life': '375',
@@ -17,7 +18,7 @@ class TestLease6(TestCase):
         }
 
     def test_init(self):
-        lease = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
+        lease = Lease6("2001:610:600:891d::60", self.lease_data,
                        "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
         self.assertEqual(lease.ip, "2001:610:600:891d::60")
 
@@ -33,12 +34,12 @@ class TestLease6(TestCase):
         self.assertEqual(lease.type, Lease6.NON_TEMPORARY)
 
     def test_repr(self):
-        lease = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
+        lease = Lease6("2001:610:600:891d::60", self.lease_data,
                        "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
         self.assertEqual(repr(lease), '<Lease6 2001:610:600:891d::60>')
 
     def _test_valid(self, now=None):
-        lease = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
+        lease = Lease6("2001:610:600:891d::60", self.lease_data,
                        "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na",
                        now=now)
         self.assertTrue(lease.valid)  # Lease is forever
@@ -58,9 +59,9 @@ class TestLease6(TestCase):
             now=datetime.datetime(2015, 7, 6, 8, 15, 0, tzinfo=utc))
 
     def test_eq(self):
-        lease_a = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
+        lease_a = Lease6("2001:610:600:891d::60", self.lease_data,
                          "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
-        lease_b = Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
+        lease_b = Lease6("2001:610:600:891d::60", self.lease_data,
                          "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na")
 
         self.assertEqual(lease_a, lease_b)
@@ -74,6 +75,6 @@ class TestLease6(TestCase):
 
     def test_naive_time(self):
         with self.assertRaises(ValueError):
-            Lease6("2001:610:600:891d::60", self.lease_data, self.lease_time,
+            Lease6("2001:610:600:891d::60", self.lease_data,
                    "4dv\\352\\000\\001\\000\\001\\035f\\037\\342\\012\\000'\\000\\000\\000", "na",
                    now=datetime.datetime.now())

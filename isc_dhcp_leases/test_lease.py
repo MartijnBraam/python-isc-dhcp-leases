@@ -21,12 +21,13 @@ class TestLease(TestCase):
 
     def test_init(self):
         lease = Lease("192.168.0.1", self.lease_data)
+        lease_start = datetime.datetime(2013, 12, 10, 12, 57, 4, tzinfo=utc)
         self.assertEqual(lease.ip, "192.168.0.1")
         self.assertEqual(lease.hardware, "ethernet")
         self.assertEqual(lease.ethernet, "60:a4:4c:b5:6a:dd")
         self.assertEqual(lease.hostname, "Satellite-C700")
-        self.assertEqual(
-            lease.start, datetime.datetime(2013, 12, 10, 12, 57, 4, tzinfo=utc))
+        self.assertEqual(lease.start, lease_start)
+        self.assertEqual(lease.last_communication, lease_start)
         self.assertIsNone(lease.end)
         self.assertTrue(lease.valid)
         self.assertFalse(lease.active)

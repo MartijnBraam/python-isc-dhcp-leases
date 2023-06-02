@@ -166,13 +166,16 @@ class IscDhcpLeases(object):
 
                 host_identifier = block['id']
                 block_type = block['type']
-                last_client_communication = parse_time(properties['cltt'])
+                last_client_communication = properties['cltt']
 
                 for address_block in self.regex_iaaddr.finditer(block['config']):
                     block = address_block.groupdict()
                     properties, options, sets = _extract_properties(block['config'])
 
-                    lease = Lease6(block['ip'], properties, last_client_communication, host_identifier, block_type,
+                    # Massage cltt into the IPv6 statement's properties
+                    properties['cltt'] = last_client_communication
+
+                    lease = Lease6(block['ip'], properties, host_identifier, block_type,
                                    options=options, sets=sets, now=self.now)
                     leases.append(lease)
 
@@ -199,10 +202,11 @@ class BaseLease(object):
     Base Implementation for all leases. This does most of the common work that is shared among v4 and v6 leases.
 
     Attributes:
-        ip          The IP address assigned by this lease as string
-        data        Dict of all the info in the dhcpd.leases file for this lease
-        options     Options on this lease
-        sets        Dict of key-value set statement values from this lease
+        ip                 The IP address assigned by this lease as string
+        last_communication The last communication time with the host
+        data               Dict of all the info in the dhcpd.leases file for this lease
+        options            Options on this lease
+        sets               Dict of key-value set statement values from this lease
     """
 
     def __init__(self, ip, properties, options=None, sets=None, now=None):
@@ -215,6 +219,21 @@ class BaseLease(object):
             sets = {}
 
         self.ip = ip
+
+        # FIXME: Review that this workaround for "backups" test data is really
+        #        necessary.
+        #
+        # According to unreliable user data[*] we're expected to instantiate
+        # objects from incomplete lease properties, instead of ignoring them.
+        #
+        # https://github.com/MartijnBraam/python-isc-dhcp-leases/issues/20
+        #
+        # [*] - start and expiry times are identical
+        if 'cltt' in properties:
+            self.last_communication = parse_time(properties['cltt'])
+        else:
+            self.last_communication = None
+
         self.data = properties
         self.options = options
         self.sets = sets
@@ -244,14 +263,15 @@ class Lease(BaseLease):
     Representation of a IPv4 dhcp lease
 
     Attributes:
-        ip              The IPv4 address assigned by this lease as string
-        hardware        The OSI physical layer used to request the lease (usually ethernet)
-        ethernet        The ethernet address of this lease (MAC address)
-        start           The start time of this lease as DateTime object
-        end             The time this lease expires as DateTime object or None if this is an infinite lease
-        hostname        The hostname for this lease if given by the client
-        binding_state   The binding state as string ('active', 'free', 'abandoned', 'backup')
-        data            Dict of all the info in the dhcpd.leases file for this lease
+        ip                 The IPv4 address assigned by this lease as string
+        last_communication The last communication time with the host
+        hardware           The OSI physical layer used to request the lease (usually ethernet)
+        ethernet           The ethernet address of this lease (MAC address)
+        start              The start time of this lease as DateTime object
+        end                The time this lease expires as DateTime object or None if this is an infinite lease
+        hostname           The hostname for this lease if given by the client
+        binding_state      The binding state as string ('active', 'free', 'abandoned', 'backup')
+        data               Dict of all the info in the dhcpd.leases file for this lease
     """
 
     def __init__(self, ip, properties, **kwargs):
@@ -266,9 +286,7 @@ class Lease(BaseLease):
             self.end = parse_time(properties['ends'])
 
         if 'hardware' in properties:
-            self._hardware = properties['hardware'].split(' ')
-            self.ethernet = self._hardware[1]
-            self.hardware = self._hardware[0]
+            self.hardware, self.ethernet = properties['hardware'].split(' ')
         else:
             self.hardware = None
             self.ethernet = None
@@ -304,11 +322,11 @@ class Lease6(BaseLease):
 
     Attributes:
         ip                 The IPv6 address assigned by this lease as string
+        last_communication The last communication time with the host
         type               If this is a temporary or permanent address
         host_identifier    The unique host identifier (replaces mac addresses in IPv6)
         duid               The DHCP Unique Identifier (DUID) of the host
         iaid               The Interface Association Identifier (IAID) of the host
-        last_communication The last communication time with the host
         end                The time this lease expires as DateTime object or None if this is an infinite lease
         binding_state      The binding state as string ('active', 'free', 'abandoned', 'backup')
         preferred_life     The preferred lifetime in seconds
@@ -318,11 +336,10 @@ class Lease6(BaseLease):
 
     (TEMPORARY, NON_TEMPORARY, PREFIX_DELEGATION) = ('ta', 'na', 'pd')
 
-    def __init__(self, ip, properties, cltt, host_identifier, address_type, **kwargs):
+    def __init__(self, ip, properties, host_identifier, address_type, **kwargs):
         super(Lease6, self).__init__(ip, properties=properties, **kwargs)
 
         self.type = address_type
-        self.last_communication = cltt
 
         self.host_identifier = self._iaid_duid_to_bytes(host_identifier)
         self.iaid = struct.unpack('<I', self.host_identifier[0:4])[0]
