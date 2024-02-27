@@ -69,6 +69,16 @@ Or read a gzip'ed file:
                           # The key of the dict is the device mac address and the
                           # Value is a Lease object
 
+Or lease data in a str:
+
+.. code:: python
+
+    from isc_dhcp_leases import Lease, IscDhcpLeases
+    with open("/path/to/dhcpd.lease", "r", encoding="utf8") as infile:
+        contents = infile.read()
+    leases = IscDhcpLease(contents, is_data=True)
+    ...
+ 
 The Lease object has the following fields (only for IPv4 leases):
 
 .. code:: python
